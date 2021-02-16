@@ -10,44 +10,34 @@ class Pdf24:
         # print("Initilized!")
         pass
 
-    def make_pdf24_dir2dir(self, indir, outdir):
-        """
-        indirにあるすべてのPDFファイルを変換する。
-        :param indir: PDFのもとファイルがあるディレクトリー
-        :param outdir: 出力用ディレクトリー
-        :return:
-        """
-        for f in list(Path(indir).glob('./*.pdf')):
+    def dir2dir(self, indir, outdir):
+        os.chdir(indir)
+        for f in Path(indir).glob('./*.pdf'):
             # outfile = outdir + '\\' + self.infile2outfile(f)
-            self.make_pdf24_file2dir(f, outdir)
+            print(f)
+            self.file2dir(f, outdir)
 
-    def make_pdf24_file2dir(self, infname, outdir):
-        '''
-        infname=PDFファイルをoutdirに書き込む
-        :param infname:
-        :param outdir:
-        :return:
-        '''
-        outfilename = self.infile2outfile(infname)
-        self.make_pdf24_file2file(infname, outfilename)
+    def file2dir(self, infname, outdir):
+        # os.chdir('E:\\Amazon\\Pdf\\将棋')
+        outfilename = outdir + '\\' + self.infile2outfile(infname)
+        self.file2file(infname, outfilename)
 
     def infile2outfile(self, infile):
         infile_name = os.path.basename(infile).split('.pdf')[0]
         outfilename = infile_name + '_pdf24.pdf'
         return outfilename
 
-    def make_pdf24_file2file(self, infname, outfname):
-        """
-        一つのPDFファイルを、outfname名で変換する
-        :param infname:
-        :param outfname:
-        :return:
-        """
-        print(outfname)
+    def file2file(self, infname, outfname):
+        # print(infname)
+        # print(outfname)
         if os.path.exists(outfname):
             os.remove(outfname)
 
+        if os.path.exists(infname):
+            print("InFile OK:")
+
         pdf_reader = PyPDF2.PdfFileReader(infname)
+        # print("OK")
         pdf_writer = PyPDF2.PdfFileWriter()
 
         lastnum = pdf_reader.getNumPages()
@@ -67,17 +57,17 @@ class Pdf24:
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 
-        pass
-
 
 if __name__ == '__main__':
 
     pdf24pk = Pdf24()
-    one_file = True
+    one_file = False
     if one_file:
-        pdf24pk.make_pdf24_file2file('E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf', 'E:\Amazon\PDF24\work')
+        pdf24pk.file2dir('E:\\Amazon\\Pdf\\将棋\\もはや死角なし！　進化版 極限早繰り銀.pdf', 'E:\\Amazon\\PDF24\\work')
+        pdf24pk.file2dir('E:\\Amazon\\Pdf\\将棋\\エルモ囲い急戦.pdf', 'E:\\Amazon\\PDF24\\work')
     else:
-        pdf24pk.make_pdf24_dir2dir('E:\\Amazon\\Pdf\\将棋', 'E:\\Amazon\\PDF24\\work')
+        pdf24pk.dir2dir('E:\\Amazon\\Pdf\\将棋', 'E:\\Amazon\\PDF24\\work')
+
     #     pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
     #     pdfdir = 'E:\Amazon\Pdf\将棋'
     #     os.chdir(pdfdir)
@@ -96,7 +86,6 @@ if __name__ == '__main__':
 
     # pcode:str = pdf24PK.make_pdf24(pdfFile, 'E:\Amazon\PDF24')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
     # def make_pdf24(self, pdfPath, inFname, outFile):
     #
@@ -127,7 +116,7 @@ if __name__ == '__main__':
     # def make_pdf240(self, in_fname, out_dir):
     #     self.make_pdf24(os.path.dirname(in_fname), in_fname, self.get_outfile(in_fname))
 
-   # def make_pdf24_file2dir(self, infile, outdir):
+    # def make_pdf24_file2dir(self, infile, outdir):
     #     '''
     #     indirにあるすべてのPDFファイルを変換する。
     #     :param indir: PDFのもとファイルがあるディレクトリー
@@ -137,7 +126,7 @@ if __name__ == '__main__':
     #     outfile = outdir + '\\' + self.infile2outfile(infile)
     #     self.make_pdf24_file2file(infile, outfile)
 
-   # def get_path_fname(self, infile):
+    # def get_path_fname(self, infile):
     #     '''
     #     ロングファイル名から、ディレクトリーをファイル名を返す
     #     :param infile: ロングファイル名
@@ -178,10 +167,11 @@ if __name__ == '__main__':
     # def shougi(self):
     #     pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
     #     pdfdir = 'E:\Amazon\Pdf\将棋'
-        # os.chdir(pdfdir)
-        # print(list(Path(pdfdir).glob('./*.pdf')))
-        #
-        # # pdf24pk = Pdf24()
-        # for f in list(Path(pdfdir).glob('./*.pdf')):
-        #     self.make_pdf24_file2dir(f, 'E:\Amazon\PDF24')
+    #     os.chdir(pdfdir)
+    #     print(list(Path(pdfdir).glob('./*.pdf')))
+    #
+    #     # pdf24pk = Pdf24()
+    #     for f in list(Path(pdfdir).glob('./*.pdf')):
+    #         self.make_pdf24_file2dir(f, 'E:\Amazon\PDF24')
 
+# See PyCharm help at https://www.jetbrains.com/help/pycharm/

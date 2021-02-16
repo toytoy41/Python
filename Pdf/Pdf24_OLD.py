@@ -46,9 +46,10 @@ class Pdf24:
         indir = items[0]
         filename= items[1] + '.pdf'
         print(indir ,' ', filename)
-        outfilename = items[1].split('.')[0]  + '_pdf24.pdf'
+        outfilename = outdir + '\\' + items[1].split('.')[0]  + '_pdf24.pdf'
 
-        self.make_pdf24_file2file(indir, outdir, filename, outfilename)
+        # self.make_pdf24_file2file(indir, outdir, filename, outfilename)
+        self.make_pdf24_file2file(filename, outfilename)
 
     def make_pdf24_file2file(self, infname, outfname):
         if os.path.exists(outfname):
@@ -76,33 +77,33 @@ class Pdf24:
 
         pass
 
-    def make_pdf24file(self, indir, outdir, infname, outfname):
-
-        # os.chdir(inPath)
-        outfname = outdir + '\\' + outfname
-        if os.path.exists(outfname):
-            os.remove(outfname)
-        infname = indir + '\\' + infname
-
-        pdf_reader = PyPDF2.PdfFileReader(infname)
-        pdf_writer = PyPDF2.PdfFileWriter()
-
-        lastNum = pdf_reader.getNumPages()
-
-        for i in range(0, lastNum, 2):
-            if i >= lastNum - 1:
-                if lastNum % 2 == 0:
-                    pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-                    pdf_writer.addPage((pdf_reader.getPage(i)))
-                else:
-                    pdf_writer.addPage((pdf_reader.getPage(i)))
-                break
-            else:
-                pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-                pdf_writer.addPage((pdf_reader.getPage(i)))
-
-        with open(outfname, "wb") as f:
-            pdf_writer.write(f)
+    # def make_pdf24file(self, indir, outdir, infname, outfname):
+    #
+    #     # os.chdir(inPath)
+    #     outfname = outdir + '\\' + outfname
+    #     if os.path.exists(outfname):
+    #         os.remove(outfname)
+    #     infname = indir + '\\' + infname
+    #
+    #     pdf_reader = PyPDF2.PdfFileReader(infname)
+    #     pdf_writer = PyPDF2.PdfFileWriter()
+    #
+    #     lastNum = pdf_reader.getNumPages()
+    #
+    #     for i in range(0, lastNum, 2):
+    #         if i >= lastNum - 1:
+    #             if lastNum % 2 == 0:
+    #                 pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+    #                 pdf_writer.addPage((pdf_reader.getPage(i)))
+    #             else:
+    #                 pdf_writer.addPage((pdf_reader.getPage(i)))
+    #             break
+    #         else:
+    #             pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+    #             pdf_writer.addPage((pdf_reader.getPage(i)))
+    #
+    #     with open(outfname, "wb") as f:
+    #         pdf_writer.write(f)
 
     def shougi(self):
         pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
@@ -112,7 +113,7 @@ class Pdf24:
 
         # pdf24pk = Pdf24()
         for f in list(Path(pdfdir).glob('./*.pdf')):
-            self.make_pdf24_file2dir(f, 'E:\Amazon\PDF24')
+            self.make_pdf24_file2dir(f, 'E:\Amazon\PDF24\work')
 
 if __name__ == '__main__':
 

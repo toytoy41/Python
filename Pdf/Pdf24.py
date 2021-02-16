@@ -19,13 +19,28 @@ class Pdf24:
 
     def file2dir(self, infname, outdir):
         # os.chdir('E:\\Amazon\\Pdf\\将棋')
-        outfilename = outdir + '\\' + self.infile2outfile(infname)
+        items = self.get_path_fname(infname)
+        # indir = items[0]
+        # filename= items[1] + '.pdf'
+
+        # outfilename = outdir + '\\' + self.infile2outfile(infname)
+        outfilename = outdir + '\\' + items[1].split('.')[0]  + '_pdf24.pdf'
         self.file2file(infname, outfilename)
 
-    def infile2outfile(self, infile):
-        infile_name = os.path.basename(infile).split('.pdf')[0]
-        outfilename = infile_name + '_pdf24.pdf'
-        return outfilename
+    # def infile2outfile(self, infile):
+    #     infile_name = os.path.basename(infile).split('.pdf')[0]
+    #     outfilename = infile_name + '_pdf24.pdf'
+    #     return outfilename
+
+    def get_path_fname(self, infile):
+        '''
+        ロングファイル名から、ディレクトリーをファイル名を返す
+        :param infile: ロングファイル名
+        :return: ディレクトリーをファイル名
+        '''
+        dir_name = os.path.dirname(infile)
+        file_name = os.path.basename(infile).split('.pdf')[0]
+        return dir_name, file_name
 
     def file2file(self, infname, outfname):
         # print(infname)
@@ -37,7 +52,6 @@ class Pdf24:
             print("InFile OK:")
 
         pdf_reader = PyPDF2.PdfFileReader(infname)
-        # print("OK")
         pdf_writer = PyPDF2.PdfFileWriter()
 
         lastnum = pdf_reader.getNumPages()
@@ -57,6 +71,8 @@ class Pdf24:
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 
+        pass
+
 
 if __name__ == '__main__':
 
@@ -66,7 +82,11 @@ if __name__ == '__main__':
         pdf24pk.file2dir('E:\\Amazon\\Pdf\\将棋\\もはや死角なし！　進化版 極限早繰り銀.pdf', 'E:\\Amazon\\PDF24\\work')
         pdf24pk.file2dir('E:\\Amazon\\Pdf\\将棋\\エルモ囲い急戦.pdf', 'E:\\Amazon\\PDF24\\work')
     else:
-        pdf24pk.dir2dir('E:\\Amazon\\Pdf\\将棋', 'E:\\Amazon\\PDF24\\work')
+        # pdf24pk.dir2dir('E:\\Amazon\\Pdf\\将棋', 'E:\\Amazon\\PDF24\\work')
+        pdfdir = 'E:\Amazon\Pdf\将棋'
+        for f in list(Path(pdfdir).glob('./*.pdf')):
+            pdf24pk.file2dir(f, 'E:\Amazon\PDF24\work')
+
 
     #     pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
     #     pdfdir = 'E:\Amazon\Pdf\将棋'

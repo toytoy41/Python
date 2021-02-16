@@ -18,8 +18,18 @@ class Pdf24:
         :return:
         """
         for f in list(Path(indir).glob('./*.pdf')):
-            outfile = outdir + '\\' + self.infile2outfile(f)
-            self.make_pdf24_file2file(f, outfile)
+            # outfile = outdir + '\\' + self.infile2outfile(f)
+            self.make_pdf24_file2dir(f, outdir)
+
+    def make_pdf24_file2dir(self, infname, outdir):
+        '''
+        infname=PDFファイルをoutdirに書き込む
+        :param infname:
+        :param outdir:
+        :return:
+        '''
+        outfilename = self.infile2outfile(infname)
+        self.make_pdf24_file2file(infname, outfilename)
 
     def infile2outfile(self, infile):
         infile_name = os.path.basename(infile).split('.pdf')[0]
@@ -136,21 +146,6 @@ if __name__ == '__main__':
     #     dir_name = os.path.dirname(infile)
     #     file_name = os.path.basename(infile).split('.pdf')[0]
     #     return dir_name, file_name
-
-    # def make_pdf24_file2dir(self, infname, outdir):
-    #     '''
-    #     infname=PDFファイルをoutdirに書き込む
-    #     :param infname:
-    #     :param outdir:
-    #     :return:
-    #     '''
-    #     items = self.get_path_fname(infname)
-    #     indir = items[0]
-    #     filename= items[1] + '.pdf'
-    #     print(indir ,' ', filename)
-    #     outfilename = items[1].split('.')[0]  + '_pdf24.pdf'
-    #
-    #     self.make_pdf24_file2file(indir, outdir, filename, outfilename)
 
     # def make_pdf24file(self, indir, outdir, infname, outfname):
     #

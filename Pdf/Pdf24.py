@@ -11,45 +11,28 @@ class Pdf24:
         pass
 
     def dir2dir(self, indir, outdir):
-        os.chdir(indir)
-        for f in Path(indir).glob('./*.pdf'):
-            # outfile = outdir + '\\' + self.infile2outfile(f)
-            print(f)
+        # os.chdir(indir)
+        for f in list(Path(indir).glob('./*.pdf')):
             self.file2dir(f, outdir)
 
     def file2dir(self, infname, outdir):
-        # os.chdir('E:\\Amazon\\Pdf\\将棋')
         items = self.get_path_fname(infname)
-        # indir = items[0]
-        # filename= items[1] + '.pdf'
+        indir = items[0]
 
-        # outfilename = outdir + '\\' + self.infile2outfile(infname)
+        os.chdir(indir)
+        filename= items[1] + '.pdf'
         outfilename = outdir + '\\' + items[1].split('.')[0]  + '_pdf24.pdf'
-        self.file2file(infname, outfilename)
 
-    # def infile2outfile(self, infile):
-    #     infile_name = os.path.basename(infile).split('.pdf')[0]
-    #     outfilename = infile_name + '_pdf24.pdf'
-    #     return outfilename
+        self.file2file(filename, outfilename)
 
     def get_path_fname(self, infile):
-        '''
-        ロングファイル名から、ディレクトリーをファイル名を返す
-        :param infile: ロングファイル名
-        :return: ディレクトリーをファイル名
-        '''
         dir_name = os.path.dirname(infile)
         file_name = os.path.basename(infile).split('.pdf')[0]
         return dir_name, file_name
 
     def file2file(self, infname, outfname):
-        # print(infname)
-        # print(outfname)
         if os.path.exists(outfname):
             os.remove(outfname)
-
-        if os.path.exists(infname):
-            print("InFile OK:")
 
         pdf_reader = PyPDF2.PdfFileReader(infname)
         pdf_writer = PyPDF2.PdfFileWriter()
@@ -83,10 +66,8 @@ if __name__ == '__main__':
     pdf24pk = Pdf24()
     one_file = False
     if one_file:
-        pdf24pk.file2dir(basepath + '\Pdf\将棋\もはや死角なし！　進化版 極限早繰り銀.pdf', basepath + '\PDF24\work')
-        pdf24pk.file2dir(basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\work')
+        pdf24pk.file2dir(basepath + '\Pdf\将棋\もはや死角なし！　進化版 極限早繰り銀.pdf', basepath + '\PDF24\将棋')
+        pdf24pk.file2dir(basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\将棋')
     else:
-        # pdf24pk.dir2dir('E:\\Amazon\\Pdf\\将棋', 'E:\\Amazon\\PDF24\\work')
-        pdfdir = 'E:\Amazon\Pdf\将棋'
-        for f in list(Path(pdfdir).glob('./*.pdf')):
-            pdf24pk.file2dir(f, 'E:\Amazon\PDF24\work')
+        pdf24pk.dir2dir(basepath + '\Pdf\将棋', basepath + '\PDF24\将棋')
+

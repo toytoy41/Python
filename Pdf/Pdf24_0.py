@@ -43,9 +43,9 @@ class Pdf24:
         :return:
         '''
         items = self.get_path_fname(infname)
-        indir = items[0]
+        # indir = items[0]
         filename= items[1] + '.pdf'
-        print(indir ,' ', filename)
+        # print(indir ,' ', filename)
         outfilename = outdir + '\\' + items[1].split('.')[0]  + '_pdf24.pdf'
 
         self.make_pdf24_file2file(filename, outfilename)

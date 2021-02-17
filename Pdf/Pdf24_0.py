@@ -90,6 +90,7 @@ class Pdf24:
         lastNum = pdf_reader.getNumPages()
 
         dotira = False
+        #   for　と　While
         if dotira == True:
             for i in range(0, lastNum, 2):
                 if i >= lastNum - 1:

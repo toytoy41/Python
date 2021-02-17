@@ -5,6 +5,11 @@ import PyPDF2
 
 
 class Pdf24:
+    """
+    Pdf24で見開きページをひらくと、左右に配置する。
+    和書(右開き)では、右左にページを配置してほしい。
+    この要求のために、Pdfファイルのページの順番をかえている。
+    """
 
     def __init__(self):
         # print("Initilized!")
@@ -13,7 +18,6 @@ class Pdf24:
     def dir2dir(self, indir, outdir):
         os.chdir(indir)
         for f in list(Path(indir).glob('./*.pdf')):
-            # print(f)
             # f ：  は　フルパス
             self.file2dir(indir, f, outdir)
 
@@ -31,16 +35,11 @@ class Pdf24:
 
         self.file2file(infile_name, outfilename)
 
-    # def get_path_fname(self, infile):
-    #     dir_name = os.path.dirname(infile)
-    #     file_name = os.path.basename(infile).split('.pdf')[0]
-    #     return dir_name, file_name
-
     def file2file(self, infname, outfname):
         if os.path.exists(outfname):
             os.remove(outfname)
 
-        #　infname：ここでフルパスを私てはいけない
+        #　infname：ここでフルパスを使ってはいけない
         pdf_reader = PyPDF2.PdfFileReader(infname)
         pdf_writer = PyPDF2.PdfFileWriter()
 
@@ -77,4 +76,3 @@ if __name__ == '__main__':
         pdf24pk.file2dir(None, basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\将棋')
     else:
         pdf24pk.dir2dir(basepath + '\Pdf\将棋', basepath + '\PDF24\将棋')
-

@@ -89,17 +89,34 @@ class Pdf24:
 
         lastNum = pdf_reader.getNumPages()
 
-        for i in range(0, lastNum, 2):
-            if i >= lastNum - 1:
-                if lastNum % 2 == 0:
+        dotira = False
+        if dotira == True:
+            for i in range(0, lastNum, 2):
+                if i >= lastNum - 1:
+                    if lastNum % 2 == 0:
+                        pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    else:
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    break
+                else:
                     pdf_writer.addPage((pdf_reader.getPage(i + 1)))
                     pdf_writer.addPage((pdf_reader.getPage(i)))
+        else:
+            i = 0
+            while (i < lastNum):
+                if i == lastNum - 1:
+                    if lastNum % 2 == 0:
+                        pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    else:
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    break
                 else:
+                    pdf_writer.addPage((pdf_reader.getPage(i + 1)))
                     pdf_writer.addPage((pdf_reader.getPage(i)))
-                break
-            else:
-                pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-                pdf_writer.addPage((pdf_reader.getPage(i)))
+
+                i = i + 2
 
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
@@ -109,7 +126,6 @@ class Pdf24:
         os.chdir(pdfdir)
         for f in list(Path(pdfdir).glob('./*.pdf')):
             self.make_pdf24_file2dir(f, basepath + '\Pdf24\Work')
-
 
 if __name__ == '__main__':
 
@@ -123,10 +139,5 @@ if __name__ == '__main__':
     pdf24pk = Pdf24()
     if True:
         pdf24pk.shougi(basepath)
-    # else:
-    #     pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
-    #     pdfdir = 'E:\Amazon\Pdf\将棋'
-    #     os.chdir(pdfdir)
-    #     print(list(Path(pdfdir).glob('./*.pdf')))
 
     exit()

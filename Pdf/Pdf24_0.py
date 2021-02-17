@@ -9,16 +9,17 @@ class Pdf24:
         # print("Initilized!")
         pass
 
-    def make_pdf24_dir2dir(self, indir, outdir):
+    def dir2dir(self, indir, outdir):
         '''
         indirにあるすべてのPDFファイルを変換する。
         :param indir: PDFのもとファイルがあるディレクトリー
         :param outdir: 出力用ディレクトリー
         :return:
         '''
+        os.chdir(indir)
         for f in list(Path(indir).glob('./*.pdf')):
-            outfile = outdir + '\\' + self.infile2outfile(f)
-            self.make_pdf24_file2dir(f, outdir)
+            # outfile = outdir + '\\' + self.infile2outfile(f)
+            self.file2dir(f, outdir)
 
     def infile2outfile(self, infile):
         infile_name = os.path.basename(infile).split('.pdf')[0]
@@ -35,7 +36,7 @@ class Pdf24:
         file_name = os.path.basename(infile).split('.pdf')[0]
         return dir_name, file_name
 
-    def make_pdf24_file2dir(self, infname, outdir):
+    def file2dir(self, infname, outdir):
         '''
         infname=PDFファイルをoutdirに書き込む
         :param infname:
@@ -43,14 +44,12 @@ class Pdf24:
         :return:
         '''
         items = self.get_path_fname(infname)
-        # indir = items[0]
         filename= items[1] + '.pdf'
-        # print(indir ,' ', filename)
         outfilename = outdir + '\\' + items[1].split('.')[0]  + '_pdf24.pdf'
 
-        self.make_pdf24_file2file(filename, outfilename)
+        self.file2file(filename, outfilename)
 
-    def make_pdf24_file2file(self, infname, outfname):
+    def file2file(self, infname, outfname):
         if os.path.exists(outfname):
             os.remove(outfname)
 
@@ -76,7 +75,7 @@ class Pdf24:
 
         pass
 
-    def make_pdf24file(self, indir, outdir, infname, outfname):
+    def pdf24file(self, indir, outdir, infname, outfname):
 
         # os.chdir(inPath)
         outfname = outdir + '\\' + outfname
@@ -121,23 +120,24 @@ class Pdf24:
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 
-    def shougi(self, basepath):
-        pdfdir = basepath + '\Pdf\将棋'
-        os.chdir(pdfdir)
-        for f in list(Path(pdfdir).glob('./*.pdf')):
-            self.make_pdf24_file2dir(f, basepath + '\Pdf24\Work')
+    def shougi(self, indir, outdir):
+        # pdfdir = basepath + '\Pdf\歴史'
+        os.chdir(indir)
+        for f in list(Path(indir).glob('./*.pdf')):
+            self.file2dir(f, outdir)
 
 if __name__ == '__main__':
 
     # print("IN")
-    hp = True
+    hp = False
     if hp:
         basepath = 'E:\Amazon'
     else:
         basepath = 'E:\BOOK'
 
-    pdf24pk = Pdf24()
-    if True:
-        pdf24pk.shougi(basepath)
+    indir = basepath + '\\Pdf\歴史'
+    outdir = basepath + '\\Pdf24\歴史'
+
+    Pdf24().dir2dir(indir, outdir)
 
     exit()

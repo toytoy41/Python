@@ -11,37 +11,44 @@ class Pdf24:
         pass
 
     def dir2dir(self, indir, outdir):
-        # os.chdir(indir)
-        for f in list(Path(indir).glob('./*.pdf')):
-            self.file2dir(f, outdir)
-
-    def file2dir(self, infname, outdir):
-        items = self.get_path_fname(infname)
-        indir = items[0]
-
         os.chdir(indir)
-        filename= items[1] + '.pdf'
-        outfilename = outdir + '\\' + items[1].split('.')[0]  + '_pdf24.pdf'
+        for f in list(Path(indir).glob('./*.pdf')):
+            # print(f)
+            # f ：  は　フルパス
+            self.file2dir(indir, f, outdir)
 
-        self.file2file(filename, outfilename)
+    def file2dir(self, dir_name, infile, outdir):
+        # infile は　フルパス
+        if dir_name is None:
+            dir_name = os.path.dirname(infile)
+            os.chdir(dir_name)
 
-    def get_path_fname(self, infile):
-        dir_name = os.path.dirname(infile)
-        file_name = os.path.basename(infile).split('.pdf')[0]
-        return dir_name, file_name
+        # print(infile)
+        infile_name = os.path.basename(infile)
+
+        file_body_name = os.path.basename(infile).split('.pdf')[0]
+        outfilename = outdir + '\\' + file_body_name  + '_pdf24.pdf'
+
+        self.file2file(infile_name, outfilename)
+
+    # def get_path_fname(self, infile):
+    #     dir_name = os.path.dirname(infile)
+    #     file_name = os.path.basename(infile).split('.pdf')[0]
+    #     return dir_name, file_name
 
     def file2file(self, infname, outfname):
         if os.path.exists(outfname):
             os.remove(outfname)
 
+        #　infname：ここでフルパスを私てはいけない
         pdf_reader = PyPDF2.PdfFileReader(infname)
         pdf_writer = PyPDF2.PdfFileWriter()
 
-        lastnum = pdf_reader.getNumPages()
+        pagelen = pdf_reader.getNumPages()
 
-        for i in range(0, lastnum, 2):
-            if i >= lastnum - 1:
-                if lastnum % 2 == 0:
+        for i in range(0, pagelen, 2):
+            if i >= pagelen - 1:
+                if pagelen % 2 == 0:
                     pdf_writer.addPage((pdf_reader.getPage(i + 1)))
                     pdf_writer.addPage((pdf_reader.getPage(i)))
                 else:
@@ -66,8 +73,8 @@ if __name__ == '__main__':
     pdf24pk = Pdf24()
     one_file = False
     if one_file:
-        pdf24pk.file2dir(basepath + '\Pdf\将棋\もはや死角なし！　進化版 極限早繰り銀.pdf', basepath + '\PDF24\将棋')
-        pdf24pk.file2dir(basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\将棋')
+        pdf24pk.file2dir('', basepath + '\Pdf\将棋\もはや死角なし！進化版 極限早繰り銀.pdf', basepath + '\PDF24\将棋')
+        pdf24pk.file2dir(None, basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\将棋')
     else:
         pdf24pk.dir2dir(basepath + '\Pdf\将棋', basepath + '\PDF24\将棋')
 

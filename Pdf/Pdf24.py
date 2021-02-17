@@ -71,127 +71,22 @@ class Pdf24:
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 
-        pass
-
 
 if __name__ == '__main__':
+
+    hp = True
+    if hp:
+        basepath = 'E:\Amazon'
+    else:
+        basepath = 'E:\BOOK'
 
     pdf24pk = Pdf24()
     one_file = False
     if one_file:
-        pdf24pk.file2dir('E:\\Amazon\\Pdf\\将棋\\もはや死角なし！　進化版 極限早繰り銀.pdf', 'E:\\Amazon\\PDF24\\work')
-        pdf24pk.file2dir('E:\\Amazon\\Pdf\\将棋\\エルモ囲い急戦.pdf', 'E:\\Amazon\\PDF24\\work')
+        pdf24pk.file2dir(basepath + '\Pdf\将棋\もはや死角なし！　進化版 極限早繰り銀.pdf', basepath + '\PDF24\work')
+        pdf24pk.file2dir(basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\work')
     else:
         # pdf24pk.dir2dir('E:\\Amazon\\Pdf\\将棋', 'E:\\Amazon\\PDF24\\work')
         pdfdir = 'E:\Amazon\Pdf\将棋'
         for f in list(Path(pdfdir).glob('./*.pdf')):
             pdf24pk.file2dir(f, 'E:\Amazon\PDF24\work')
-
-
-    #     pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
-    #     pdfdir = 'E:\Amazon\Pdf\将棋'
-    #     os.chdir(pdfdir)
-    #     print(list(Path(pdfdir).glob('./*.pdf')))
-
-    # pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
-    # pdfdir = 'E:\Amazon\Pdf\将棋'
-    # os.chdir(pdfdir)
-    # print(list(Path(pdfdir).glob('./*.pdf')))
-    #
-    # pdf24pk = Pdf24()
-    # for f in list(Path(pdfdir).glob('./*.pdf')):
-    #     pcode: str = pdf24pk.make_pdf24(f, 'E:\Amazon\PDF24')
-
-    exit()
-
-    # pcode:str = pdf24PK.make_pdf24(pdfFile, 'E:\Amazon\PDF24')
-
-
-    # def make_pdf24(self, pdfPath, inFname, outFile):
-    #
-    #     os.chdir(pdfPath)
-    #     if os.path.exists(outFile):
-    #         os.remove(outFile)
-    #
-    #     pdf_reader = PyPDF2.PdfFileReader(inFname)
-    #     pdf_writer = PyPDF2.PdfFileWriter()
-    #
-    #     lastNum = pdf_reader.getNumPages()
-    #
-    #     for i in range(0, lastNum, 2):
-    #         if i >= lastNum - 1:
-    #             if lastNum % 2 == 0:
-    #                 pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-    #                 pdf_writer.addPage((pdf_reader.getPage(i)))
-    #             else:
-    #                 pdf_writer.addPage((pdf_reader.getPage(i)))
-    #             break
-    #         else:
-    #             pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-    #             pdf_writer.addPage((pdf_reader.getPage(i)))
-    #
-    #     with open(outFile, "wb") as f:
-    #         pdf_writer.write(f)
-
-    # def make_pdf240(self, in_fname, out_dir):
-    #     self.make_pdf24(os.path.dirname(in_fname), in_fname, self.get_outfile(in_fname))
-
-    # def make_pdf24_file2dir(self, infile, outdir):
-    #     '''
-    #     indirにあるすべてのPDFファイルを変換する。
-    #     :param indir: PDFのもとファイルがあるディレクトリー
-    #     :param outdir: 出力用ディレクトリー
-    #     :return:
-    #     '''
-    #     outfile = outdir + '\\' + self.infile2outfile(infile)
-    #     self.make_pdf24_file2file(infile, outfile)
-
-    # def get_path_fname(self, infile):
-    #     '''
-    #     ロングファイル名から、ディレクトリーをファイル名を返す
-    #     :param infile: ロングファイル名
-    #     :return: ディレクトリーをファイル名
-    #     '''
-    #     dir_name = os.path.dirname(infile)
-    #     file_name = os.path.basename(infile).split('.pdf')[0]
-    #     return dir_name, file_name
-
-    # def make_pdf24file(self, indir, outdir, infname, outfname):
-    #
-    #     # os.chdir(inPath)
-    #     outfname = outdir + '\\' + outfname
-    #     if os.path.exists(outfname):
-    #         os.remove(outfname)
-    #     infname = indir + '\\' + infname
-    #
-    #     pdf_reader = PyPDF2.PdfFileReader(infname)
-    #     pdf_writer = PyPDF2.PdfFileWriter()
-    #
-    #     lastNum = pdf_reader.getNumPages()
-    #
-    #     for i in range(0, lastNum, 2):
-    #         if i >= lastNum - 1:
-    #             if lastNum % 2 == 0:
-    #                 pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-    #                 pdf_writer.addPage((pdf_reader.getPage(i)))
-    #             else:
-    #                 pdf_writer.addPage((pdf_reader.getPage(i)))
-    #             break
-    #         else:
-    #             pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-    #             pdf_writer.addPage((pdf_reader.getPage(i)))
-    #
-    #     with open(outfname, "wb") as f:
-    #         pdf_writer.write(f)
-
-    # def shougi(self):
-    #     pdfFile = 'E:\Amazon\Pdf\将棋\急所を直撃！とっておきの雁木破り.pdf'
-    #     pdfdir = 'E:\Amazon\Pdf\将棋'
-    #     os.chdir(pdfdir)
-    #     print(list(Path(pdfdir).glob('./*.pdf')))
-    #
-    #     # pdf24pk = Pdf24()
-    #     for f in list(Path(pdfdir).glob('./*.pdf')):
-    #         self.make_pdf24_file2dir(f, 'E:\Amazon\PDF24')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -45,18 +45,48 @@ class Pdf24:
 
         pagelen = pdf_reader.getNumPages()
 
-        for i in range(0, pagelen, 2):
-            if i >= pagelen - 1:
-                if pagelen % 2 == 0:
+        dotira = True
+        #   for　と　While
+        if dotira == True:
+            for i in range(0, pagelen, 2):
+                if i == pagelen - 1:
+                    if pagelen % 2 == 0:
+                        pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    else:
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    break
+                else:
                     pdf_writer.addPage((pdf_reader.getPage(i + 1)))
                     pdf_writer.addPage((pdf_reader.getPage(i)))
+        else:
+            i = 0
+            while (i < pagelen):
+                if i == pagelen - 1:
+                    if pagelen % 2 == 0:
+                        pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    else:
+                        pdf_writer.addPage((pdf_reader.getPage(i)))
+                    break
                 else:
+                    pdf_writer.addPage((pdf_reader.getPage(i + 1)))
                     pdf_writer.addPage((pdf_reader.getPage(i)))
-                break
-            else:
-                pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-                pdf_writer.addPage((pdf_reader.getPage(i)))
 
+                i = i + 2
+
+        # for i in range(0, pagelen, 2):
+        #     if i >= pagelen - 1:
+        #         if pagelen % 2 == 0:
+        #             pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+        #             pdf_writer.addPage((pdf_reader.getPage(i)))
+        #         else:
+        #             pdf_writer.addPage((pdf_reader.getPage(i)))
+        #         break
+        #     else:
+        #         pdf_writer.addPage((pdf_reader.getPage(i + 1)))
+        #         pdf_writer.addPage((pdf_reader.getPage(i)))
+        #
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 
@@ -72,7 +102,10 @@ if __name__ == '__main__':
     pdf24pk = Pdf24()
     one_file = False
     if one_file:
-        pdf24pk.file2dir('', basepath + '\Pdf\将棋\もはや死角なし！進化版 極限早繰り銀.pdf', basepath + '\PDF24\将棋')
+        pdf24pk.file2dir(None, basepath + '\Pdf\将棋\もはや死角なし！進化版 極限早繰り銀.pdf', basepath + '\PDF24\将棋')
         pdf24pk.file2dir(None, basepath + '\Pdf\将棋\エルモ囲い急戦.pdf', basepath + '\PDF24\将棋')
     else:
-        pdf24pk.dir2dir(basepath + '\Pdf\将棋', basepath + '\PDF24\将棋')
+        indir = basepath + '\\Pdf\歴史'
+        outdir = basepath + '\\Pdf24\歴史'
+
+        pdf24pk.dir2dir(indir, outdir)

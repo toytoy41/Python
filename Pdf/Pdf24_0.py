@@ -21,10 +21,10 @@ class Pdf24:
             # outfile = outdir + '\\' + self.infile2outfile(f)
             self.file2dir(f, outdir)
 
-    def infile2outfile(self, infile):
-        infile_name = os.path.basename(infile).split('.pdf')[0]
-        outfilename = infile_name  + '_pdf24.pdf'
-        return outfilename
+    # def infile2outfile(self, infile):
+    #     infile_name = os.path.basename(infile).split('.pdf')[0]
+    #     outfilename = infile_name  + '_pdf24.pdf'
+    #     return outfilename
 
     def get_path_fname(self, infile):
         '''
@@ -121,16 +121,16 @@ class Pdf24:
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 
-    def shougi(self, indir, outdir):
-        # pdfdir = basepath + '\Pdf\歴史'
-        os.chdir(indir)
-        for f in list(Path(indir).glob('./*.pdf')):
-            self.file2dir(f, outdir)
+    # def shougi(self, indir, outdir):
+    #     # pdfdir = basepath + '\Pdf\歴史'
+    #     os.chdir(indir)
+    #     for f in list(Path(indir).glob('./*.pdf')):
+    #         self.file2dir(f, outdir)
 
 if __name__ == '__main__':
 
     # print("IN")
-    hp = False
+    hp = True
     if hp:
         basepath = 'E:\Amazon'
     else:

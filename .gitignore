@@ -57,3 +57,4 @@ Practice/Flask/templates/index.BAK
 Rakuten/chromedriver.exe
 *.mp3
 Pdf/tmpC335.tmp.py
+Pdf/__pycache__/

@@ -75,18 +75,6 @@ class Pdf24:
 
                 i = i + 2
 
-        # for i in range(0, pagelen, 2):
-        #     if i >= pagelen - 1:
-        #         if pagelen % 2 == 0:
-        #             pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-        #             pdf_writer.addPage((pdf_reader.getPage(i)))
-        #         else:
-        #             pdf_writer.addPage((pdf_reader.getPage(i)))
-        #         break
-        #     else:
-        #         pdf_writer.addPage((pdf_reader.getPage(i + 1)))
-        #         pdf_writer.addPage((pdf_reader.getPage(i)))
-        #
         with open(outfname, "wb") as f:
             pdf_writer.write(f)
 

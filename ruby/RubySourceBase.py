@@ -60,32 +60,31 @@ class PutRuby():
                 line_strip = readline.strip()
                 newline_break += line_strip
 
-        (k, v) = newline_break.split(';')
+        (filename, items) = newline_break.split(';')
 
-        line_strip0 = v.replace('{', '').replace('}', '')
+        line_strip0 = items.replace('{', '').replace('}', '')
         line_strip1 = line_strip0.replace(' ', '', 200)
 
-        # print(k)
-        # print(line_strip1)
+        #   Dictデータ取得
+        dictItems = line_strip1.split(',')
 
-        line_strip2 = line_strip1.split(',')
-
-        newDict = {}
-        for term in line_strip2:
+        kanjiDict = {}
+        for term in dictItems:
             # print(term)
-            term2 = term.replace(" ", '', 100)
+            term2 = term.replace(' ', '', 100)
             # print(term2)
-            (k2, v2) = term2.split(':')
-            newDict[k2] = v2
+            (k, v) = term2.split(':')
+            if k == '' or v == '':
+                pass
+            else:
+                kanjiDict[k] = v
 
-        print(newDict)
-        return k, newDict
+        # print(kanaDict)
+        return filename, kanjiDict
 
     def SourceBase(self, fileNumber):
-        fileNumber = 2
-        filename, KanjiDict = self.getFile(fileNumber)
-
-        print('filename : ' + filename)
+        filename, kanjiDict = self.getFile(fileNumber)
+        # print('filename : ' + filename)
 
         self.inFile = indir + filename
         self.outFile = outdir + filename
@@ -98,74 +97,33 @@ class PutRuby():
         startFlg = False
 
         for inLine in originLines:
-            new = inLine
+            newline = inLine
             if startFlg == False:
                 # print(new)
-                if re.search('<body>', new):
+                if re.search('<body>', newline):
                     startFlg = True
             else:
                 con2=0
-                for kanji in KanjiDict.keys():
-                    if re.search(kanji, new):
-                        if re.search('<rb>' + kanji + '.*</rb>', new):
-                            print("no" + new, end="")
+                for kanji in kanjiDict.keys():
+                    if re.search(kanji, newline):
+                        if re.search('<rb>' + kanji + '</rb>', newline):
+                            print("no" + newline, end="")
                         else:
-                            kana = KanjiDict.get(kanji)
-                            new = re.sub(kanji,
+                            kana = kanjiDict.get(kanji)
+                            newline = re.sub(kanji,
                                          '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
-                                         new)
+                                         newline)
                             # print("yes" + new, end="")
                             # print(new)
 
-            fout.write(new)
+            fout.write(newline)
 
         fout.close()
         shutil.copyfile(self.tmpFile, self.outFile)
 
-    def KeyBase(self):
-
-        for filename in rubyDict.keys():
-            with open(indir + filename,encoding='utf-8') as f:
-                lineList = f.readlines()
-
-            outlines = ''
-
-            taiouhyou = rubyDict.get(filename)
-
-            for kanji in taiouhyou.keys():
-                outlines = ''
-                for line in lineList:
-                    changeflag = False
-
-                    if re.search(kanji, line):
-                        # print(line, end="")
-                        # print("a")
-                        if re.search('<rb>' + kanji + '.*</rb>', line):
-                            print("no" + line, end="")
-                        else:
-                            kana = taiouhyou.get(kanji)
-                            new = re.sub(kanji,'<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
-                                   line)
-                            print("yes" + line, end="")
-                            print(new)
-
-                            changeflag = True
-                            outlines = outlines + new
-
-                    if changeflag == False:
-                        outlines = outlines + line
-
-                linelist = outlines
-
-            print(outlines)
-
-            outfile = outdir + filename
-            with open(outfile, 'wt', encoding='utf-8') as outfile:
-                outfile.writelines(outlines)
-
 def go():
     ruby = PutRuby()
-    ruby.SourceBase(2)
+    ruby.SourceBase(fileNumber=2)
 
 if __name__ == '__main__':
 

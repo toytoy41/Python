@@ -34,11 +34,11 @@ fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
 # [1,2,5]
 # ②　 変更の対象外
 
-escapeDic = {3:{'道':[[1,2,5],
-                     ['道で', '道じゅん','この道','ある道',
+option_dict = {3:{'道':[[1, 2, 5],
+                       ['道で', '道じゅん','この道','ある道',
                       '道を','道は','道だ', 'は道', '歩道','国道']],
 	        '橋':[[1],['鉄橋','橋を']]}
-}
+               }
 
 indir = './in/'
 outdir = './out/'
@@ -58,13 +58,25 @@ class PutRuby():
         # self.num = 1
         pass
 
-    def get_dict(self, num):
-        # num = 3
-        escapeData = escapeDic[3]
-        # print(escapeData)
+    # def get_dict(self, num):
+    #     # num = 3
+    #     escapeData = escapeDic[3]
+    #     # print(escapeData)
+    #
+    #     for item in escapeData.keys():
+    #         do, notdo = escapeData[item]
 
-        for item in escapeData.keys():
-            do, notdo = escapeData[item]
+    def get_option_keys(self, text_num):
+        return (option_dict[text_num])
+
+    def get_option(self, text_num, kanji):
+        file_data = option_dict[text_num]
+        # print(file_data)
+        do, dont = file_data[kanji]
+        print(do)
+        print(dont)
+        return(do, dont)
+
 
     def morethan_one(self, nums):
         '''
@@ -76,7 +88,7 @@ class PutRuby():
             print(num)
             self.source_base(num)
 
-    def get_file(self, fileNumber):
+    def get_dict_data(self, fileNumber):
         '''
         1ファイルのルビ辞書Dictを作成する
         :param fileNumber:
@@ -114,9 +126,9 @@ class PutRuby():
             return filename, kanjiDict
 
     def source_base(self, fileNumber):
-        filename, kanji_dict = self.get_file(fileNumber)
-        # print(kanji_dict)
-        escape_data = escapeDic[fileNumber]
+
+        filename, kanji_dict = self.get_dict_data(fileNumber)
+        option_keys = self.get_option_keys(fileNumber)
 
         # print('filename : ' + filename)
         self.inFile = indir + filename
@@ -131,7 +143,7 @@ class PutRuby():
 
         fout = open(self.tmpFile, 'wt', encoding='utf-8')
 
-        start_flg = False       #   <body>　データまでは無条件で書き出す
+        start_flg = False               #   <body>　データまでは無条件で書き出す
         for inLine in originLines:      #   オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
@@ -144,12 +156,13 @@ class PutRuby():
                     '''
 
                     option = False      #   オプション処理があるか
-                    if kanji in escape_data:
+                    if kanji in option_keys:
                         '''
                         各ファイルのescape_dataデータの当該漢字について
                         doとdontのリストを取得する
                         '''
-                        do, dont = escape_data[kanji]
+                        do, dont = self.get_option(fileNumber,kanji)
+                        print(do)
                         option = True
                         '''
                         do　リストがあるのでオプション処理をする
@@ -166,21 +179,21 @@ class PutRuby():
                                 escape_flag = True      #　この行はオプション処理をする
                                 newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
 
-                            # print(newline)
-                            if re.search('<toy>.*' + kanji + '</toy>', newline):
-                                print('1')
-                            if re.search('<toy>' + kanji + '.*</toy>', newline):
-                                print('2')
-                            if re.search('<rb>.*' + kanji + '</rb>', newline):
-                                print('3')
-                            if re.search('<rb>' + kanji + '.*</r>', newline):
-                                print('4')
+                        protect_flag = False
+                        if re.search('<toy>.*' + kanji + '</toy>', newline):
+                            protect_flag = True
+                            print('1 ' + kanji)
+                        if re.search('<toy>' + kanji + '.*</toy>', newline):
+                            protect_flag = True
+                            print('2 ' + kanji)
+                        if re.search('<rb>.*' + kanji + '</rb>', newline):
+                            protect_flag = True
+                            print('3 ' + kanji)
+                        if re.search('<rb>' + kanji + '.*</r>', newline):
+                            protect_flag = True
+                            print('4 ' + kanji)
 
-                        if re.search('<toy>.*' + kanji + '</toy>', newline) is None \
-                            and re.search('<toy>' + kanji + '.*</toy>', newline) is None \
-                            and re.search('<rb>.*' + kanji + '</rb>', newline) is None \
-                            and re.search('<rb>' + kanji + '.*</r>', newline) is None:
-
+                        if protect_flag == False:
                             kana = kanji_dict.get(kanji)
                             newline = re.sub(kanji,
                                          '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
@@ -193,19 +206,19 @@ class PutRuby():
                             newline = re.sub('</toy>', '', newline)
 
             fout.write(newline)
-            # print(newline)
 
         fout.close()
         shutil.copyfile(self.tmpFile, self.outFile)
-        print('OK')
+        # print('OK')
 
 def go():
     ruby = PutRuby()
     # fnums = [1,2, 3,4,5,7,8,9,10,11,12,30]
     fnums = [3]
     # ruby.get_dict(fnums)
+    ruby.get_option(3,'道')
     # fnums = [7,8,9,10,11,12,]
-    ruby.morethan_one(fnums)
+    # ruby.morethan_one(fnums)
     # ruby.SourceBase(fnums)
 
 if __name__ == '__main__':

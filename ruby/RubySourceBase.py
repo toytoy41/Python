@@ -33,11 +33,12 @@ fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
 # ①　 変更するもの出現回をリストにする。
 # [1,2,5]
 # ②　 変更の対象外
-escapeDic = {3:{'道':[[1,2,5],['道じゅん','この道','ある道','鉄橋','道を','道は','道だ']],
-	'橋':[[1],['鉄橋']]}
-}
 
-CHANGENUM = 2
+escapeDic = {3:{'道':[[1,2,5],
+                     ['道で', '道じゅん','この道','ある道',
+                      '道を','道は','道だ', 'は道', '歩道','国道']],
+	        '橋':[[1],['鉄橋','橋を']]}
+}
 
 indir = './in/'
 outdir = './out/'
@@ -57,7 +58,15 @@ class PutRuby():
         # self.num = 1
         pass
 
-    def morethanOne(self, nums):
+    def get_dict(self, num):
+        # num = 3
+        escapeData = escapeDic[3]
+        # print(escapeData)
+
+        for item in escapeData.keys():
+            do, notdo = escapeData[item]
+
+    def morethan_one(self, nums):
         '''
         複数の処理番号から、ひとつづつ処理する
         :param nums: 　処理番号
@@ -65,9 +74,9 @@ class PutRuby():
         '''
         for num in nums:
             print(num)
-            self.SourceBase(num)
+            self.source_base(num)
 
-    def getFile(self, fileNumber):
+    def get_file(self, fileNumber):
         '''
         1ファイルのルビ辞書Dictを作成する
         :param fileNumber:
@@ -80,19 +89,19 @@ class PutRuby():
             for readline in file:
                 line_strip = readline.strip()
                 newline_break += line_strip
-
+        # print(newline_break)
         (filename, items) = newline_break.split(';')
 
         line_strip0 = items.replace('{', '').replace('}', '')
         line_strip1 = line_strip0.replace(' ', '', 200)
 
-        if len(line_strip1) == 0:
+        if len(line_strip1) == 0:   #   ルビデータがない
             return(filename, {})
         else:
             #   Dictデータ取得
             dictItems = line_strip1.split(',')
             kanjiDict = {}
-            for term in dictItems:
+            for term in dictItems:      #   ルビデータをDictに収集
                 # print(term)
                 term2 = term.replace(' ', '', 100)
                 # print(term2)
@@ -102,16 +111,18 @@ class PutRuby():
                 else:
                     kanjiDict[k] = v
 
-            # print(kanaDict)
             return filename, kanjiDict
 
-    def SourceBase(self, fileNumber):
-        filename, kanjiDict = self.getFile(fileNumber)
+    def source_base(self, fileNumber):
+        filename, kanji_dict = self.get_file(fileNumber)
+        # print(kanji_dict)
+        escape_data = escapeDic[fileNumber]
+
         # print('filename : ' + filename)
         self.inFile = indir + filename
         self.outFile = outdir + filename
 
-        if kanjiDict == {}:
+        if kanji_dict == {}:    #   ルビデータがなければ、そのままコピー
             shutil.copyfile(self.inFile, self.outFile)
             return(0)
 
@@ -120,48 +131,82 @@ class PutRuby():
 
         fout = open(self.tmpFile, 'wt', encoding='utf-8')
 
-        startFlg = False
-        for inLine in originLines:
+        start_flg = False       #   <body>　データまでは無条件で書き出す
+        for inLine in originLines:      #   オリジナルデータを一行づつ処理
             newline = inLine
-            if startFlg == False:
-                # print(new)
+            if start_flg == False:
                 if re.search('<body>', newline):
-                    startFlg = True
+                    start_flg = True
             else:
-                # con=0
-                for kanji in kanjiDict.keys():
-                    # if con >= CHANGENUM:
-                    #     print('con >= CHANGENUM:')
-                    #     print(CHANGENUM, con)
-                    #     continue
+                for kanji in kanji_dict.keys():
+                    '''
+                    入力行に対して、辞書をしらべて、該当する単語があれば、ルビをフル
+                    '''
+
+                    option = False      #   オプション処理があるか
+                    if kanji in escape_data:
+                        '''
+                        各ファイルのescape_dataデータの当該漢字について
+                        doとdontのリストを取得する
+                        '''
+                        do, dont = escape_data[kanji]
+                        option = True
+                        '''
+                        do　リストがあるのでオプション処理をする
+                        '''
 
                     if re.search(kanji, newline):
+                        if option == True:
 
-                        if re.search('<rb>*' + kanji + '</rb>', newline) is None\
-                                and re.search('<rb>' + kanji + '*</rb>', newline) is None:
-                            kana = kanjiDict.get(kanji)
+                            escape_flag = False
+                            for notstr in dont:
+                                '''
+                                dont 文字列のnotstrが、この行にあれば<toy>タグをつける
+                                '''
+                                escape_flag = True      #　この行はオプション処理をする
+                                newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
+
+                            # print(newline)
+                            if re.search('<toy>.*' + kanji + '</toy>', newline):
+                                print('1')
+                            if re.search('<toy>' + kanji + '.*</toy>', newline):
+                                print('2')
+                            if re.search('<rb>.*' + kanji + '</rb>', newline):
+                                print('3')
+                            if re.search('<rb>' + kanji + '.*</r>', newline):
+                                print('4')
+
+                        if re.search('<toy>.*' + kanji + '</toy>', newline) is None \
+                            and re.search('<toy>' + kanji + '.*</toy>', newline) is None \
+                            and re.search('<rb>.*' + kanji + '</rb>', newline) is None \
+                            and re.search('<rb>' + kanji + '.*</r>', newline) is None:
+
+                            kana = kanji_dict.get(kanji)
                             newline = re.sub(kanji,
                                          '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
                                          newline)
-                            # con += 1
-                            # print("yes" + newline, end="")
-                            # print(new)
                         else:
-                            # print("no" + newline, end="")
                             pass
 
+                        if option == True and escape_flag == True:
+                            newline = re.sub('<toy>', '',  newline)
+                            newline = re.sub('</toy>', '', newline)
+
             fout.write(newline)
+            # print(newline)
 
         fout.close()
         shutil.copyfile(self.tmpFile, self.outFile)
+        print('OK')
 
 def go():
     ruby = PutRuby()
     # fnums = [1,2, 3,4,5,7,8,9,10,11,12,30]
     fnums = [3]
+    # ruby.get_dict(fnums)
     # fnums = [7,8,9,10,11,12,]
-    ruby.morethanOne(fnums)
-    # ruby.SourceBase(fileNumber=2)
+    ruby.morethan_one(fnums)
+    # ruby.SourceBase(fnums)
 
 if __name__ == '__main__':
 

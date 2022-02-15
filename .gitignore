@@ -67,3 +67,4 @@ Sas/main.py
 ruby/test.py
 ruby/work/
 ruby/.vscode/launch.json
+ruby/__pycache__/data.cpython-310.pyc

@@ -1,6 +1,7 @@
 import sys
 import re
 import shutil
+from data import option_dict
 
 # filename= 'Watashitachino_Kashiwa_0.html'
 # taiouhyou = {'章': 'しょう', '発足': 'ほっそく', '際': 'さい', '募集': 'ぼしゅう',
@@ -34,11 +35,11 @@ fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
 # [1,2,5]
 # ②　 変更の対象外
 
-option_dict = {3:{'道':[[1, 2, 5],
-                       ['道で', '道じゅん','この道','ある道',
-                      '道を','道は','道だ', 'は道', '歩道','国道']],
-	        '橋':[[1],['鉄橋','橋を']]}
-               }
+# option_dict = {3:{'道':[[1, 2, 5],
+#                        ['道で', '道じゅん','この道','ある道',
+#                       '道を','道は','道だ', 'は道', '歩道','国道']],
+# 	        '橋':[[1],['鉄橋','橋を']]}
+#                }
 
 indir = './in/'
 outdir = './out/'
@@ -58,13 +59,14 @@ class PutRuby():
         # self.num = 1
         pass
 
-    # def get_dict(self, num):
-    #     # num = 3
-    #     escapeData = escapeDic[3]
-    #     # print(escapeData)
-    #
-    #     for item in escapeData.keys():
-    #         do, notdo = escapeData[item]
+    def get_dict(self, num):
+        # num = 3
+        escapeData = option_dict[3]
+        # print(escapeData)
+        # print(bbb)
+
+        for item in escapeData.keys():
+            do, notdo = escapeData[item]
 
     def get_option_keys(self, text_num):
         return (option_dict[text_num])
@@ -156,7 +158,7 @@ class PutRuby():
                     '''
 
                     option = False      #   オプション処理があるか
-                    if kanji in option_keys:
+                    if kanji in option_keys():
                         '''
                         各ファイルのescape_dataデータの当該漢字について
                         doとdontのリストを取得する
@@ -211,12 +213,22 @@ class PutRuby():
         shutil.copyfile(self.tmpFile, self.outFile)
         # print('OK')
 
+    def file2pytho_code(self,fileNumber):
+        filename, dict = self.get_dict_data(fileNumber)
+
+        with open('tmp.py', 'wt', encoding='utf-8') as f:
+            f.write(filename)
+            for item in dict:
+                pass
+
+
+
 def go():
     ruby = PutRuby()
     # fnums = [1,2, 3,4,5,7,8,9,10,11,12,30]
     fnums = [3]
-    # ruby.get_dict(fnums)
-    ruby.get_option(3,'道')
+    ruby.get_dict(fnums)
+    # ruby.get_option(3,'道')
     # fnums = [7,8,9,10,11,12,]
     # ruby.morethan_one(fnums)
     # ruby.SourceBase(fnums)

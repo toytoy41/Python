@@ -169,18 +169,18 @@ class PutRuby():
 
                     if re.search(kanji, newline):
 
-                        if my_options != {}:
-                            # print(option_keys)
-                            if kanji in my_options:  #　この漢字にはoption処理がある
+                        # if dont != {}:
+                        #     # print(option_keys)
+                        if dont != {}:  #　この漢字にはoption処理がある
+                            '''
+                            この行に、例外文字列があれば、一時タグ<toy>で囲っておく
+                            '''
+                            for notstr in dont: #　don't処理; 当該もじを<toy>タグで囲む
+                                escape_flag = True      #　この行はオプション処理をする
+                                newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
                                 '''
-                                この行に、例外文字列があれば、一時タグ<toy>で囲っておく
+                                この行に例外処理文字列がなければ、なにもしない。
                                 '''
-                                for notstr in dont: #　don't処理; 当該もじを<toy>タグで囲む
-                                    escape_flag = True      #　この行はオプション処理をする
-                                    newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
-                                    '''
-                                    この行に例外処理文字列がなければ、なにもしない。
-                                    '''
 
                         protect_flag = False
                         if re.search('<toy>.*' + kanji + '</toy>', newline):
@@ -198,11 +198,11 @@ class PutRuby():
 
                         ok = False      #   書いてよい。この漢字は幾つ目？
                         if protect_flag == False:   #　問題ないから、ルビをフル
-                            if kanji in do_data:
-                                cnt = do_data[kanji]['num']
-                                pos = do_data[kanji]['position']
+                            if kanji in do:
+                                cnt = do[kanji]['num']
+                                pos = do[kanji]['position']
                                 cnt = cnt + 1
-                                do_data[kanji]['num'] = cnt
+                                do[kanji]['num'] = cnt
 
                                 # print('{}  {}  {}'.format(kanji , cnt, pos))
                                 if cnt in pos:
@@ -237,56 +237,6 @@ class PutRuby():
                     max = i
         return max
 
-    def get_dict_data(self, fileNumber):
-        '''
-        1ファイルのルビ辞書Dictを作成する
-        :param fileNumber:
-        :return:''
-        '''
-
-        # print(fileDic[fileNumber])
-        with open(data_dir + fileDic[fileNumber], 'rt', encoding='utf-8') as file:
-            newline_break = ""
-            for readline in file:
-                line_strip = readline.strip()
-                newline_break += line_strip
-        # print(newline_break)
-        (filename, items) = newline_break.split(';')
-
-        line_strip0 = items.replace('{', '').replace('}', '')
-        line_strip1 = line_strip0.replace(' ', '', 200)
-
-        if len(line_strip1) == 0:  # ルビデータがない
-            return (filename, {})
-        else:
-            #   Dictデータ取得
-            dictItems = line_strip1.split(',')
-            kanjiDict = {}
-            for term in dictItems:  # ルビデータをDictに収集
-                # print(term)
-                term2 = term.replace(' ', '', 100)
-                # print(term2)
-                (k, v) = term2.split(':')
-                if k is None or v is None:
-                    pass
-                else:
-                    kanjiDict[k] = v
-
-            return filename, kanjiDict
-
-    def get_file_option(self, text_num):
-        '''
-        ファイルにoptionがあれば、optionデータを返す
-        なければ、{}を返す
-        :param text_num:
-        :return:
-        '''
-        if text_num in option_dict:
-            # print(option_dict[text_num])
-            return (option_dict[text_num])
-        else:
-            return {}
-
     def make_do_data(self, option):
         '''
         do データ作成
@@ -295,39 +245,22 @@ class PutRuby():
         '''
         global OPTION
 
-        do_dict = {}
-        # option = my_options
-        # print(option)
         if option == {}:
             OPTION = False
             return ({})
         else:
             OPTION = True
 
+        do_dict = {}
         for kanji in option:
-            cnt = {'num': 0}
-
             do, dont = option[kanji]
-            # position = {'position' : do}
-            cnt.update({'position': do})
 
-            tmp = {kanji: cnt}
-            do_dict.update(tmp)
+            shori_ok_pos = {'num': 0}
+            shori_ok_pos.update({'position': do})
+
+            do_dict.update({kanji: shori_ok_pos})
 
         return (do_dict)
-
-    def get_file_kanji_option(self, text_num, kanji):
-        # print('get_file_kanji_option  ' + kanji)
-
-        do = []
-        dont = []
-        if OPTION == False:
-            return (do, dont)
-
-        if kanji in option_dict[text_num]:
-            do, dont = option_dict[text_num][kanji]
-        # print('')
-        return (do, dont)
 
     def get_do_dont(self,my_options, kanji):
 
@@ -337,6 +270,69 @@ class PutRuby():
         if kanji in my_options:
             do, dont = my_options[kanji]
         return(do, dont)
+
+    # def get_file_kanji_option(self, text_num, kanji):
+    #     # print('get_file_kanji_option  ' + kanji)
+    #
+    #     do = []
+    #     dont = []
+    #     if OPTION == False:
+    #         return (do, dont)
+    #
+    #     if kanji in option_dict[text_num]:
+    #         do, dont = option_dict[text_num][kanji]
+    #     # print('')
+    #     return (do, dont)
+    #
+    # def get_dict_data(self, fileNumber):
+    #     '''
+    #     1ファイルのルビ辞書Dictを作成する
+    #     :param fileNumber:
+    #     :return:''
+    #     '''
+    #
+    #     # print(fileDic[fileNumber])
+    #     with open(data_dir + fileDic[fileNumber], 'rt', encoding='utf-8') as file:
+    #         newline_break = ""
+    #         for readline in file:
+    #             line_strip = readline.strip()
+    #             newline_break += line_strip
+    #     # print(newline_break)
+    #     (filename, items) = newline_break.split(';')
+    #
+    #     line_strip0 = items.replace('{', '').replace('}', '')
+    #     line_strip1 = line_strip0.replace(' ', '', 200)
+    #
+    #     if len(line_strip1) == 0:  # ルビデータがない
+    #         return (filename, {})
+    #     else:
+    #         #   Dictデータ取得
+    #         dictItems = line_strip1.split(',')
+    #         kanjiDict = {}
+    #         for term in dictItems:  # ルビデータをDictに収集
+    #             # print(term)
+    #             term2 = term.replace(' ', '', 100)
+    #             # print(term2)
+    #             (k, v) = term2.split(':')
+    #             if k is None or v is None:
+    #                 pass
+    #             else:
+    #                 kanjiDict[k] = v
+    #
+    #         return filename, kanjiDict
+
+    # def get_file_option(self, text_num):
+    #     '''
+    #     ファイルにoptionがあれば、optionデータを返す
+    #     なければ、{}を返す
+    #     :param text_num:
+    #     :return:
+    #     '''
+    #     if text_num in option_dict:
+    #         # print(option_dict[text_num])
+    #         return (option_dict[text_num])
+    #     else:
+    #         return {}
 
 def go():
     ruby = PutRuby()

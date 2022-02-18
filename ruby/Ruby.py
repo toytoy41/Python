@@ -136,7 +136,7 @@ class PutRuby():
     def source_base(self, fileNumber):
 
         filename, file_kanji_dict, my_options = self.get_dict(fileNumber)
-        do_not_data = self.make_do_dont_data(my_options)
+        do_data = self.make_do_data(my_options)
 
         inFile = indir + filename
         outFile = outdir + filename
@@ -198,11 +198,11 @@ class PutRuby():
 
                         ok = False      #   書いてよい。この漢字は幾つ目？
                         if protect_flag == False:   #　問題ないから、ルビをフル
-                            if kanji in do_not_data:
-                                cnt = do_not_data[kanji]['num']
-                                pos = do_not_data[kanji]['position']
+                            if kanji in do_data:
+                                cnt = do_data[kanji]['num']
+                                pos = do_data[kanji]['position']
                                 cnt = cnt + 1
-                                do_not_data[kanji]['num'] = cnt
+                                do_data[kanji]['num'] = cnt
 
                                 # print('{}  {}  {}'.format(kanji , cnt, pos))
                                 if cnt in pos:
@@ -287,11 +287,16 @@ class PutRuby():
         else:
             return {}
 
-    def make_file_option_data(self, text_num):
+    def make_do_data(self, option):
+        '''
+        do データ作成
+        :param option:
+        :return:
+        '''
         global OPTION
 
         do_dict = {}
-        option = self.get_file_option(text_num)
+        # option = my_options
         # print(option)
         if option == {}:
             OPTION = False
@@ -299,18 +304,16 @@ class PutRuby():
         else:
             OPTION = True
 
-        for kanji in self.get_file_option(text_num).keys():
+        for kanji in option:
             cnt = {'num': 0}
 
-            do, dont = option_dict[text_num][kanji]
+            do, dont = option[kanji]
             # position = {'position' : do}
             cnt.update({'position': do})
 
             tmp = {kanji: cnt}
             do_dict.update(tmp)
 
-        # print (do_dict)
-        # print (do_dict)
         return (do_dict)
 
     def get_file_kanji_option(self, text_num, kanji):

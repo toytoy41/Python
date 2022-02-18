@@ -228,6 +228,104 @@ class PutRuby():
         shutil.copyfile(tmpFile, outFile)
         # print('OK')
 
+    def get_max(self, nums):
+        max = 0
+        if nums != []:
+            max = nums[0]
+            for i in nums:
+                if max < i:
+                    max = i
+        return max
+
+    def get_dict_data(self, fileNumber):
+        '''
+        1ファイルのルビ辞書Dictを作成する
+        :param fileNumber:
+        :return:''
+        '''
+
+        # print(fileDic[fileNumber])
+        with open(data_dir + fileDic[fileNumber], 'rt', encoding='utf-8') as file:
+            newline_break = ""
+            for readline in file:
+                line_strip = readline.strip()
+                newline_break += line_strip
+        # print(newline_break)
+        (filename, items) = newline_break.split(';')
+
+        line_strip0 = items.replace('{', '').replace('}', '')
+        line_strip1 = line_strip0.replace(' ', '', 200)
+
+        if len(line_strip1) == 0:  # ルビデータがない
+            return (filename, {})
+        else:
+            #   Dictデータ取得
+            dictItems = line_strip1.split(',')
+            kanjiDict = {}
+            for term in dictItems:  # ルビデータをDictに収集
+                # print(term)
+                term2 = term.replace(' ', '', 100)
+                # print(term2)
+                (k, v) = term2.split(':')
+                if k is None or v is None:
+                    pass
+                else:
+                    kanjiDict[k] = v
+
+            return filename, kanjiDict
+
+    def get_file_option(self, text_num):
+        '''
+        ファイルにoptionがあれば、optionデータを返す
+        なければ、{}を返す
+        :param text_num:
+        :return:
+        '''
+        if text_num in option_dict:
+            # print(option_dict[text_num])
+            return (option_dict[text_num])
+        else:
+            return {}
+
+    def make_file_option_data(self, text_num):
+        global OPTION
+
+        do_dict = {}
+        option = self.get_file_option(text_num)
+        # print(option)
+        if option == {}:
+            OPTION = False
+            return ({})
+        else:
+            OPTION = True
+
+        for kanji in self.get_file_option(text_num).keys():
+            cnt = {'num': 0}
+
+            do, dont = option_dict[text_num][kanji]
+            # position = {'position' : do}
+            cnt.update({'position': do})
+
+            tmp = {kanji: cnt}
+            do_dict.update(tmp)
+
+        # print (do_dict)
+        # print (do_dict)
+        return (do_dict)
+
+    def get_file_kanji_option(self, text_num, kanji):
+        # print('get_file_kanji_option  ' + kanji)
+
+        do = []
+        dont = []
+        if OPTION == False:
+            return (do, dont)
+
+        if kanji in option_dict[text_num]:
+            do, dont = option_dict[text_num][kanji]
+        # print('')
+        return (do, dont)
+
     def get_do_dont(self,my_options, kanji):
 
         do = []

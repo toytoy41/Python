@@ -50,33 +50,94 @@ tmpFile = 'tmp.html'
 file_data ={}
 file_do = []
 file_dont = []
+data_dir = './data/'
+file_name = ''
+
 
 class PutRuby():
+    global file_name
+    global kanji_dict
+    global my_options
+    global do_donot
 
     def __init__(self):
-        '''
-        sfdasf
-        '''
-        # self.site=site
-        # self.num = 1
+        file_name = ''
+        kanji_dict = {}
+        my_options = {}
+        do_donot = {}
+
         pass
 
     def morethan_one(self, nums):
-        '''
-        複数の処理番号から、ひとつづつ処理する
-        :param nums: 　処理番号
-        :return:
-        '''
         for num in nums:
-            print(num)
             self.source_base(num)
+
+    def get_dict(self,fileNumber):
+        if fileNumber == 1:
+            from WK10 import ruby_dict, options
+        elif fileNumber ==2:
+            from WK10 import ruby_dict, options
+        elif fileNumber ==3:
+            from WK11 import ruby_dict, options
+        elif fileNumber ==4:
+            from WK12 import ruby_dict, options
+        elif fileNumber ==5:
+            from WK121 import ruby_dict, options
+        elif fileNumber ==6:
+            from WK122 import ruby_dict, options
+        elif fileNumber ==7:
+            from WK123 import ruby_dict, options
+        elif fileNumber ==8:
+            from WK21 import ruby_dict, options
+        elif fileNumber ==9:
+            from WK211 import ruby_dict, options
+        elif fileNumber ==10:
+            from WK212 import ruby_dict, options
+        elif fileNumber ==11:
+            from WK22 import ruby_dict, options
+        elif fileNumber ==12:
+            from WK23 import ruby_dict, options
+        elif fileNumber ==13:
+            from WK30 import ruby_dict, options
+        elif fileNumber ==14:
+            from WK31 import ruby_dict, options
+        elif fileNumber ==15:
+            from WK32 import ruby_dict, options
+        elif fileNumber ==16:
+            from WK41 import ruby_dict, options
+        elif fileNumber ==17:
+            from WK42 import ruby_dict, options
+        elif fileNumber ==18:
+            from WK43 import ruby_dict, options
+        elif fileNumber ==19:
+            from WK44 import ruby_dict, options
+        elif fileNumber ==20:
+            from WK51 import ruby_dict, options
+        elif fileNumber ==21:
+            from WK52 import ruby_dict, options
+        elif fileNumber ==22:
+            from WK61 import ruby_dict, options
+        elif fileNumber ==23:
+            from WK62 import ruby_dict, options
+        elif fileNumber ==24:
+            from WK71 import ruby_dict, options
+        elif fileNumber ==25:
+            from WK72 import ruby_dict, options
+        elif fileNumber ==26:
+            from WKOrikomi import ruby_dict, options
+        elif fileNumber ==27:
+            from WKFront import ruby_dict, options
+
+        file_name = ruby_dict[0]
+        kanji_dict = ruby_dict[1]
+        my_options = options
+        return(file_name, kanji_dict, my_options)
 
     def source_base(self, fileNumber):
 
-        filename, file_kanji_dict = self.get_dict_data(fileNumber)
-        file_strict_data = self.make_file_strict_data(fileNumber)
+        filename, file_kanji_dict, my_options = self.get_dict(fileNumber)
+        do_not_data = self.make_do_dont_data(my_options)
 
-        # print('filename : ' + filename)
         inFile = indir + filename
         outFile = outdir + filename
 
@@ -91,8 +152,6 @@ class PutRuby():
 
         start_flg = False               #   <body>　データまでは無条件で書き出す
 
-        option_keys = self.get_file_option(fileNumber)
-
         for inLine in originLines:      #   オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
@@ -106,13 +165,13 @@ class PutRuby():
 
                     # option = False      #   オプション処理があるか
                     escape_flag = False #   処理した
-                    do, dont = self.get_file_kanji_option(fileNumber, kanji)
+                    do, dont = self.get_do_dont(my_options, kanji)
 
                     if re.search(kanji, newline):
 
-                        if option_keys != {}:
+                        if my_options != {}:
                             # print(option_keys)
-                            if kanji in option_keys:  #　この漢字にはoption処理がある
+                            if kanji in my_options:  #　この漢字にはoption処理がある
                                 '''
                                 この行に、例外文字列があれば、一時タグ<toy>で囲っておく
                                 '''
@@ -139,11 +198,11 @@ class PutRuby():
 
                         ok = False      #   書いてよい。この漢字は幾つ目？
                         if protect_flag == False:   #　問題ないから、ルビをフル
-                            if kanji in file_strict_data:
-                                cnt = file_strict_data[kanji]['num']
-                                pos = file_strict_data[kanji]['position']
+                            if kanji in do_not_data:
+                                cnt = do_not_data[kanji]['num']
+                                pos = do_not_data[kanji]['position']
                                 cnt = cnt + 1
-                                file_strict_data[kanji]['num'] = cnt
+                                do_not_data[kanji]['num'] = cnt
 
                                 # print('{}  {}  {}'.format(kanji , cnt, pos))
                                 if cnt in pos:
@@ -169,87 +228,25 @@ class PutRuby():
         shutil.copyfile(tmpFile, outFile)
         # print('OK')
 
-    def get_dict_data(self, fileNumber):
-        '''
-        1ファイルのルビ辞書Dictを作成する
-        :param fileNumber:
-        :return:''
-        '''
-
-        # print(fileDic[fileNumber])
-        with open(fileDic[fileNumber], 'rt', encoding='utf-8') as file:
-            newline_break = ""
-            for readline in file:
-                line_strip = readline.strip()
-                newline_break += line_strip
-        # print(newline_break)
-        (filename, items) = newline_break.split(';')
-
-        line_strip0 = items.replace('{', '').replace('}', '')
-        line_strip1 = line_strip0.replace(' ', '', 200)
-
-        if len(line_strip1) == 0:   #   ルビデータがない
-            return(filename, {})
-        else:
-            #   Dictデータ取得
-            dictItems = line_strip1.split(',')
-            kanjiDict = {}
-            for term in dictItems:      #   ルビデータをDictに収集
-                # print(term)
-                term2 = term.replace(' ', '', 100)
-                # print(term2)
-                (k, v) = term2.split(':')
-                if k is None or v is None:
-                    pass
-                else:
-                    kanjiDict[k] = v
-
-            return filename, kanjiDict
-
-    def get_file_option(self, text_num):
-        # print(option_dict[text_num])
-        return (option_dict[text_num])
-
-    def get_file_kanji_option(self, text_num, kanji):
-        # print('get_file_kanji_option  ' + kanji)
+    def get_do_dont(self,my_options, kanji):
 
         do = []
         dont = []
-        if kanji in option_dict[text_num]:
-            do, dont = option_dict[text_num][kanji]
-
-        # print(do)
-        # print(dont)
+        # print(my_options)
+        if kanji in my_options:
+            do, dont = my_options[kanji]
         return(do, dont)
-
-    def make_file_strict_data(self, text_num):
-        do_dict = {}
-        for kanji in self.get_file_option(text_num).keys():
-            cnt = {'num':0}
-
-            do, dont = option_dict[text_num][kanji]
-            # position = {'position' : do}
-            cnt.update({'position' : do})
-
-            tmp = {kanji:cnt}
-            do_dict.update(tmp)
-
-        # print(do_dict['道']['num'])
-        # print (do_dict)
-        # do_dict['道']['num'] = 2
-        # print (do_dict)
-        return(do_dict)
 
 def go():
     ruby = PutRuby()
-    ruby.make_file_strict_data(3)
+    # ruby.make_file_strict_data(3)
     # ruby.get_file_option(3)
     # ruby.get_option(3,'道')
     # fnums = [1,2, 3,4,5,7,8,9,10,11,12,30]
     fnums = [3]
     # fnums = [7,8,9,10,11,12,]
-    # ruby.morethan_one(fnums)
-    ruby.source_base(3)
+    ruby.morethan_one(fnums)
+    # ruby.source_base(3)
 
 if __name__ == '__main__':
 

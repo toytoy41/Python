@@ -13,21 +13,21 @@ from data import option_dict
 #              '利用': 'りよう', '災害': 'さいがい', '地震': 'じしん', '伝統': 'でんとう', '先人': 'せんじん',
 #              '郷土': 'きょうど', '残': 'のこ'}  # '農':'のう',
 
-# fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
-#            6:'K122.txt', 7:'K123.txt', 8:'K21.txt', 9:'K211.txt', 10:'K212.txt',
-#            11:'K22.txt', 12:'K23.txt', 13:'K30.txt', 14:'K31.txt', 15:'K32.txt',
-#            16:'K41.txt', 17:'K42.txt', 18:'K43.txt', 19:'K44.txt', 20:'K51.txt',
-#            21:'K52.txt', 22:'K61.txt', 23:'K62.txt', 24:'K71.txt', 25:'K72.txt',
-#            26:'KOrikomi.txt', 27:'KFront.txt'}
 fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
            6:'K122.txt', 7:'K123.txt', 8:'K21.txt', 9:'K211.txt', 10:'K212.txt',
-           11:'K22.txt', 12:'K23.txt', 14:'K31.txt', 15:'K32.txt',
-           16:'K41.txt', 20:'K51.txt',
+           11:'K22.txt', 12:'K23.txt', 13:'K30.txt', 14:'K31.txt', 15:'K32.txt',
+           16:'K41.txt', 17:'K42.txt', 18:'K43.txt', 19:'K44.txt', 20:'K51.txt',
            21:'K52.txt', 22:'K61.txt', 23:'K62.txt', 24:'K71.txt', 25:'K72.txt',
-           26:'KOrikomi.txt', 27:'KFront.txt', 30:'nav.txt'}
+           26:'KOrikomi.txt', 27:'KFront.txt'}
+# fileDic = {1: 'K0.txt', 2: 'K10.txt', 3: 'K11.txt', 4: 'K12.txt', 5: 'K121.txt',
+#            6: 'K122.txt', 7: 'K123.txt', 8: 'K21.txt', 9: 'K211.txt', 10: 'K212.txt',
+#            11: 'K22.txt', 12: 'K23.txt', 14: 'K31.txt', 15: 'K32.txt',
+#            16: 'K41.txt', 20: 'K51.txt',
+#            21: 'K52.txt', 22: 'K61.txt', 23: 'K62.txt', 24: 'K71.txt', 25: 'K72.txt',
+#            26: 'KOrikomi.txt', 27: 'KFront.txt', 30: 'nav.txt'}
 
-#　42，43，44　は　41に含まれる
-#　30はルビなし
+# 　42，43，44　は　41に含まれる
+# 　30はルビなし
 # るび　発展形
 # ファイルの中のキー毎に
 # '道'
@@ -47,12 +47,12 @@ originLines = ''
 inFile = ''
 outFile = ''
 tmpFile = 'tmp.html'
-file_data ={}
+file_data = {}
 file_do = []
 file_dont = []
+data_dir = './data/'
 
 class PutRuby():
-
     OPTION = False
 
     def __init__(self):
@@ -82,9 +82,9 @@ class PutRuby():
         inFile = indir + filename
         outFile = outdir + filename
 
-        if file_kanji_dict == {}:    #   ルビデータがなければ、そのままコピー
+        if file_kanji_dict == {}:  # ルビデータがなければ、そのままコピー
             shutil.copyfile(inFile, outFile)
-            return(0)
+            return (0)
 
         with open(inFile, 'rt', encoding='utf-8') as f:
             originLines = f.readlines()
@@ -96,8 +96,8 @@ class PutRuby():
         else:
             option_keys = {}
 
-        start_flg = False               #   <body>　データまでは無条件で書き出す
-        for inLine in originLines:      #   オリジナルデータを一行づつ処理
+        start_flg = False  # <body>　データまでは無条件で書き出す
+        for inLine in originLines:  # オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
                 if re.search('<body>', newline):
@@ -108,51 +108,79 @@ class PutRuby():
                     入力行に対して、辞書をしらべて、該当する単語があれば、ルビをフル
                     '''
                     # print(kanji)
-                    option_done = False  # 処理した
+                    dont_done = False  # 処理した
                     ok = True
                     if re.search(kanji, newline):
                         # print('kanji:{}  newline:{}'.format(kanji, newline) )
-                        repeat = newline.split(kanji)
-                        repeat_num = len(repeat) -1
+                        should_be_protected= False
+                        if OPTION == True and kanji in file_option_data:  # このファイルにはOption がある
+                            """
+                            この漢字はOption処理をしなければいけない
+                            """
+                            repeat = newline.split(kanji)
+                            repeat_num = len(repeat) -1 #この行に該当する漢字がいくつあったか
 
-                        should_be_protected = False
-                        if OPTION == True:      #   このファイルにはOption がある
-
+                            should_be_protected = False
                             do = []
                             dont = []
 
-                            if kanji in file_option_data:
-                                """
-                                この漢字はOption処理をしなければいけない
-                                """
+                            if file_option_data[kanji]['num'] == -1:
+                                '''
+                                option : do 処理を全部やった。後は変更しない。
+                                '''
+                                continue
 
-                                if file_option_data[kanji]['num'] == -1:
-                                    '''
-                                    option : do 処理を全部やった。
-                                    '''
-                                    continue
+                            # option = False      #   オプション処理があるか
+                            do, dont = self.get_file_kanji_option(fileNumber, kanji)
 
-                                # option = False      #   オプション処理があるか
-                                do, dont = self.get_file_kanji_option(fileNumber, kanji)
-
-                                #   dont 処理からやる
-                                if dont != []:
+                            #   dont 処理からやる
+                            if dont != []:
+                                '''
+                                この行に、dont：例外文字列があれば、一時タグ<toy>で囲っておく
+                                '''
+                                for notstr in dont:  # don't処理; 当該もじを<toy>タグで囲む
+                                    dont_done = True  # この行はオプション処理をする
+                                    newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
                                     '''
-                                    この行に、dont：例外文字列があれば、一時タグ<toy>で囲っておく
+                                    この行に例外処理文字列がなければ、なにもしない。
                                     '''
-                                    for notstr in dont: #　don't処理; 当該もじを<toy>タグで囲む
-                                        option_done = True      #　この行はオプション処理をする
-                                        newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
-                                        '''
-                                        この行に例外処理文字列がなければ、なにもしない。
-                                        '''
 
-                            if re.search('<toy>.*' + kanji + '</toy>', newline):
-                                should_be_protected = True
-                                print('1 ' + kanji)
-                            if re.search('<toy>' + kanji + '.*</toy>', newline):
-                                should_be_protected = True
-                                print('2 ' + kanji)
+                            #   do 処理
+                            ok = False
+                            '''
+                            # Trueならdo処理をした。この漢字は幾つ目？
+                            '''
+                            # print('OPTION == True and protect_flag == False')
+                            if do != []:
+                                cnt = file_option_data[kanji]['num']
+                                pos = file_option_data[kanji]['position']
+                                # print('{}  {}  {}'.format(kanji , cnt, pos))
+
+                                i = 1
+                                while i <= repeat_num:
+                                    i = i + 1
+                                    cnt = cnt + 1
+                                    if cnt in pos:
+                                        ok = True
+
+                                if cnt >= self.get_max(do):
+                                    # print('over  ' + kanji)
+                                    file_option_data[kanji]['num'] = -1
+                                else:
+                                    file_option_data[kanji]['num'] = cnt
+                                    # print('cnt2 {}   '.format(cnt))
+
+                            else:
+                                ok = True
+                        else:
+                            ok = True
+
+                        if re.search('<toy>.*' + kanji + '</toy>', newline):
+                            should_be_protected = True
+                            print('1 ' + kanji)
+                        if re.search('<toy>' + kanji + '.*</toy>', newline):
+                            should_be_protected = True
+                            print('2 ' + kanji)
 
                         if re.search('<rb>.*' + kanji + '</rb>', newline):
                             should_be_protected = True
@@ -161,66 +189,25 @@ class PutRuby():
                             should_be_protected = True
                             print('4 ' + kanji)
 
-                        ok = False      #   書いてよい。この漢字は幾つ目？
-                        if kanji == '物':
-                            print(kanji)
-                            print(should_be_protected)
-
-                        if  OPTION == True:   #　問題ないから、ルビをフル
-                            # print('OPTION == True and protect_flag == False')
-                            if do != []:
-                                cnt = file_option_data[kanji]['num']
-                                pos = file_option_data[kanji]['position']
-                                cnt = cnt + 1
-
-                                # print('{}  {}  {}'.format(kanji , cnt, pos))
-                                max = cnt+repeat_num
-                                while cnt < max:
-                                    if cnt in pos:
-                                        ok = True
-                                        print('OK')
-                                        break
-                                    else:
-                                        print('NOT OK')
-                                        ok = False
-                                    print('cnt {}'.format(cnt))
-                                    print('max {}'.format(max))
-                                    cnt = cnt + 1
-
-                                if cnt >= self.get_max(do):
-                                    # print('over  ' + kanji)
-                                    file_option_data[kanji]['num'] = -1
-                                else:
-                                    file_option_data[kanji]['num'] = cnt
-
-                            else:
-                                ok = True
-                        else:
-                            ok = True
-
                         if ok == True and should_be_protected == False:
-                            # print(newline)
                             kana = file_kanji_dict.get(kanji)
-                            #       問題あり、ここでどこにあってもすべていれている。
+                            #       問題あり、この行ではすべて、やみくもに変更。
                             # print('{} {} '.format(kanji, kana))
                             newline = re.sub(kanji,
                                              '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
-                                         newline)
+                                             newline)
                             # print(newline)
-                        else:
-                            pass
 
-                        if option_done == True:
-                            newline = re.sub('<toy>', '',  newline)
+                        if dont_done == True:
+                            newline = re.sub('<toy>', '', newline)
                             newline = re.sub('</toy>', '', newline)
 
             fout.write(newline)
 
         fout.close()
         shutil.copyfile(tmpFile, outFile)
-        # print('OK')
 
-    def get_max(self,nums):
+    def get_max(self, nums):
         max = 0
         if nums != []:
             max = nums[0]
@@ -228,8 +215,7 @@ class PutRuby():
                 if max < i:
                     max = i
         return max
-            
-        
+
     def get_dict_data(self, fileNumber):
         '''
         1ファイルのルビ辞書Dictを作成する
@@ -238,7 +224,7 @@ class PutRuby():
         '''
 
         # print(fileDic[fileNumber])
-        with open(fileDic[fileNumber], 'rt', encoding='utf-8') as file:
+        with open(data_dir + fileDic[fileNumber], 'rt', encoding='utf-8') as file:
             newline_break = ""
             for readline in file:
                 line_strip = readline.strip()
@@ -249,13 +235,13 @@ class PutRuby():
         line_strip0 = items.replace('{', '').replace('}', '')
         line_strip1 = line_strip0.replace(' ', '', 200)
 
-        if len(line_strip1) == 0:   #   ルビデータがない
-            return(filename, {})
+        if len(line_strip1) == 0:  # ルビデータがない
+            return (filename, {})
         else:
             #   Dictデータ取得
             dictItems = line_strip1.split(',')
             kanjiDict = {}
-            for term in dictItems:      #   ルビデータをDictに収集
+            for term in dictItems:  # ルビデータをDictに収集
                 # print(term)
                 term2 = term.replace(' ', '', 100)
                 # print(term2)
@@ -268,6 +254,12 @@ class PutRuby():
             return filename, kanjiDict
 
     def get_file_option(self, text_num):
+        '''
+        ファイルにoptionがあれば、optionデータを返す
+        なければ、{}を返す
+        :param text_num:
+        :return:
+        '''
         if text_num in option_dict:
             # print(option_dict[text_num])
             return (option_dict[text_num])
@@ -282,23 +274,23 @@ class PutRuby():
         # print(option)
         if option == {}:
             OPTION = False
-            return({})
+            return ({})
         else:
             OPTION = True
 
         for kanji in self.get_file_option(text_num).keys():
-            cnt = {'num':0}
+            cnt = {'num': 0}
 
             do, dont = option_dict[text_num][kanji]
             # position = {'position' : do}
-            cnt.update({'position' : do})
+            cnt.update({'position': do})
 
-            tmp = {kanji:cnt}
+            tmp = {kanji: cnt}
             do_dict.update(tmp)
 
         # print (do_dict)
         # print (do_dict)
-        return(do_dict)
+        return (do_dict)
 
     def get_file_kanji_option(self, text_num, kanji):
         # print('get_file_kanji_option  ' + kanji)
@@ -311,21 +303,22 @@ class PutRuby():
         if kanji in option_dict[text_num]:
             do, dont = option_dict[text_num][kanji]
         # print('')
-        return(do, dont)
+        return (do, dont)
+
 
 def go():
     ruby = PutRuby()
     # ruby.make_file_strict_data(1)
     # ruby.get_file_option(3)
     # ruby.get_option(3,'道')
-    # fnums = [1,2, 3,4,5,7,8,9,10,11,12,30]
-    fnums = [9]
+    # fnums = [1,2, 3,4,5,6,7,8,9,10,11,12,13,14,15]
+    # fnums = [16,17, 18,19,20,21,22,23,24,25]
+    fnums = [24]
     # fnums = [7,8,9,10,11,12,]
     ruby.morethan_one(fnums)
     # ruby.source_base(7)
 
 if __name__ == '__main__':
-
     go()
 
     sys.exit()

@@ -156,7 +156,6 @@ class PutRuby():
                     if re.search(kanji, newline):
                         # if kanji == '様子':
                         #     print(kanji)
-
                         # if dont != {}:
                         #     # print(option_keys)
                         if dont != {}:  #　この漢字にはoption処理がある
@@ -196,9 +195,8 @@ class PutRuby():
 
                                 # print(kanji)
                                 # print(do)
-
                                 splitted = newline.split(kanji)
-                                kanji_num = len(splitted) - 1  # この行に該当する漢字がいくつあったか
+                                kanji_num = len(splitted) - 1  # この行にある該当漢字の個数
 
                                 cnt = processed_num[kanji]
                                 if kanji == '様子':
@@ -214,14 +212,12 @@ class PutRuby():
 
                                 # print('{} {} {}'.format(repeat_num, cnt,do))
                                 if cnt > max(do):
-                                    # print('over  ' + kanji)
                                     processed_num[kanji] = -1
                                     through = True
-                                    # print('{} {} {}'.format(repeat_num, cnt, do))
+                                    # print('over >>> {} {} {}'.format(repeat_num, cnt, do))
                                 else:
-                                    processed_num[kanji] = cnt
+                                    processed_num[kanji] = processed_num[kanji] + kanji_num
 
-                                # print(processed_num[kanji])
                             else:
                                 ok = True
 
@@ -352,7 +348,7 @@ def go():
 
     # fnums = [1,2, 3,4,5,6,7,8,9,10,11,12,13,14,15]
     # fnums = [16,17, 18,19,20,21,22,23,24,25]
-    fnums = [24]
+    fnums = [9]
     # fnums = [30]
     ruby.morethan_one(fnums)
 

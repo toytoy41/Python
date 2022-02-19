@@ -8,7 +8,7 @@ fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
            11:'K22.txt', 12:'K23.txt', 13:'K30.txt', 14:'K31.txt', 15:'K32.txt',
            16:'K41.txt', 17:'K42.txt', 18:'K43.txt', 19:'K44.txt', 20:'K51.txt',
            21:'K52.txt', 22:'K61.txt', 23:'K62.txt', 24:'K71.txt', 25:'K72.txt',
-           26:'KOrikomi.txt', 27:'KFront.txt'}
+           26:'KOrikomi.txt', 27:'KFront.txt', 30:'nav.html'}
 # fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
 #            6:'K122.txt', 7:'K123.txt', 8:'K21.txt', 9:'K211.txt', 10:'K212.txt',
 #            11:'K22.txt', 12:'K23.txt', 14:'K31.txt', 15:'K32.txt',
@@ -33,12 +33,14 @@ class PutRuby():
     global kanji_dict
     # global my_options
     global do_donot
+    global NAK
 
     def __init__(self):
         file_name = ''
         kanji_dict = {}
         # my_options = {}
         do_donot = {}
+        NAK = False
 
         pass
 
@@ -49,6 +51,9 @@ class PutRuby():
     def get_dict(self,fileNumber):
         # global file_name,kanji_dict,my_options
         #
+        global NAK
+        NAK = False
+
         if fileNumber == 1:
             from WK10 import ruby_dict, options
         elif fileNumber ==2:
@@ -107,6 +112,7 @@ class PutRuby():
             from WKFront import ruby_dict, options
         elif fileNumber ==30:
             from WKnav import ruby_dict, options
+            NAK = True
 
         # file_name = ruby_dict[0]
         # kanji_dict = ruby_dict[1]
@@ -114,7 +120,7 @@ class PutRuby():
         return(ruby_dict[0], ruby_dict[1], options)
 
     def source_base(self, fileNumber):
-        stop_flag= False
+        through= False
 
         filename, kanji_dict, options = self.get_dict(fileNumber)
         processed_num = self.make_proccess_cnt_disc(options)
@@ -134,7 +140,7 @@ class PutRuby():
         for inLine in originLines:      #   オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
-                if re.search('<body>', newline):
+                if re.search('<body>', newline) or NAK == True:
                     start_flg = True
             else:
                 for kanji in kanji_dict:
@@ -142,12 +148,14 @@ class PutRuby():
                     入力行に対して、辞書をしらべて、該当する単語があれば、ルビをフル
                     '''
 
-                    stop_flag = False
+                    through = False
                     # option = False            #   オプション処理があるか
                     escape_flag = False         #   処理した
                     do, dont = self.get_do_dont(options, kanji)
 
                     if re.search(kanji, newline):
+                        # if kanji == '様子':
+                        #     print(kanji)
 
                         # if dont != {}:
                         #     # print(option_keys)
@@ -182,6 +190,10 @@ class PutRuby():
                             # print(do)
 
                             if do != []:
+                                if processed_num[kanji] == -1:
+                                    through = True
+                                    continue
+
                                 # print(kanji)
                                 # print(do)
 
@@ -189,7 +201,9 @@ class PutRuby():
                                 kanji_num = len(splitted) - 1  # この行に該当する漢字がいくつあったか
 
                                 cnt = processed_num[kanji]
-                                # print('{} {} {}'.format(repeat_num, cnt,do))
+                                if kanji == '様子':
+                                    # print(cnt)
+                                    print('{} cnt : {} do : {}'.format(kanji_num, cnt,do))
 
                                 i = 1
                                 while i <= kanji_num:
@@ -199,10 +213,10 @@ class PutRuby():
                                     i = i + 1
 
                                 # print('{} {} {}'.format(repeat_num, cnt,do))
-                                if cnt >= max(do):
+                                if cnt > max(do):
                                     # print('over  ' + kanji)
                                     processed_num[kanji] = -1
-                                    stop_flag = True
+                                    through = True
                                     # print('{} {} {}'.format(repeat_num, cnt, do))
                                 else:
                                     processed_num[kanji] = cnt
@@ -211,7 +225,8 @@ class PutRuby():
                             else:
                                 ok = True
 
-                        if ok == True and stop_flag == False:
+                        if ok == True and through == False:
+                            # print(kanji)
                             kana = kanji_dict[kanji]
                             newline = re.sub(kanji,
                                              '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
@@ -244,7 +259,8 @@ class PutRuby():
 
         processed_disc = {}
         for kanji in option:
-            processed_disc.update({kanji: 0})
+            # processed_disc.update({kanji: 0})
+            processed_disc[kanji] = 0
 
         return (processed_disc)
 
@@ -336,7 +352,8 @@ def go():
 
     # fnums = [1,2, 3,4,5,6,7,8,9,10,11,12,13,14,15]
     # fnums = [16,17, 18,19,20,21,22,23,24,25]
-    fnums = [1,2,3]
+    fnums = [24]
+    # fnums = [30]
     ruby.morethan_one(fnums)
 
 if __name__ == '__main__':

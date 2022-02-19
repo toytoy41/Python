@@ -18,15 +18,15 @@ fileDic = {1: 'K0.txt', 2: 'K10.txt', 3: 'K11.txt', 4: 'K12.txt', 5: 'K121.txt',
 
 indir = './in/'
 outdir = './out/'
-originLines = ''
-inFile = ''
-outFile = ''
+# originLines = ''
+# inFile = ''
+# outFile = ''
 tmpFile = 'tmp.html'
-file_data = {}
-file_do = []
-file_dont = []
+# file_data = {}
+# file_do = []
+# file_dont = []
 data_dir = './data/'
-file_name = ''
+# file_name = ''
 
 
 class PutRuby():
@@ -48,6 +48,120 @@ class PutRuby():
     def morethan_one(self, nums):
         for num in nums:
             self.source_base(num)
+
+    def source_base(self, fileNumber):
+
+        file_name, kanji_dict, options = self.get_dict(fileNumber)
+        processed_num = self.clear_proccess_cnt_disc(options)
+
+        in_file = indir + file_name
+        out_file = outdir + file_name
+
+        if kanji_dict == {}:    # ルビデータがなければ、そのままコピー
+            shutil.copyfile(in_file, out_file)
+            return (0)
+
+        with open(in_file, 'rt', encoding='utf-8') as f:
+            originLines = f.readlines()
+        fout = open(tmpFile, 'wt', encoding='utf-8')
+
+        through = False     #   True でルビ付けをしない
+        start_flg = False  # <body>　データまでは無条件で書き出す
+
+        for inLine in originLines:  # オリジナルデータを一行づつ処理
+            newline = inLine
+            if start_flg == False:
+                if re.search('<body>', newline) or NAK == True:
+                    start_flg = True
+            else:
+                for kanji in kanji_dict:
+                    '''
+                    入力行に対して、辞書をしらべて、該当する単語があれば、ルビをフル
+                    '''
+
+                    through = False
+                    # option = False            #   オプション処理があるか
+                    escape_flag = False  # 処理した
+                    do, dont = self.get_do_dont(options, kanji)
+
+                    if re.search(kanji, newline):
+                        if dont != {}:  # この漢字にはoption処理がある
+                            '''
+                            この行に、例外文字列があれば、一時タグ<toy>で囲っておく
+                            '''
+                            for notstr in dont:  # don't処理; 当該もじを<toy>タグで囲む
+                                escape_flag = True  # この行はオプション処理をする
+                                newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
+                                '''
+                                この行に例外処理文字列がなければ、なにもしない。
+                                '''
+
+                        protect_flag = False
+                        if re.search('<toy>.*' + kanji + '</toy>', newline):
+                            protect_flag = True
+                            # print('1 ' + kanji)
+                        if re.search('<toy>' + kanji + '.*</toy>', newline):
+                            protect_flag = True
+                            # print('2 ' + kanji)
+                        if re.search('<rb>.*' + kanji + '</rb>', newline):
+                            protect_flag = True
+                            # print('3 ' + kanji)
+                        if re.search('<rb>' + kanji + '.*</r>', newline):
+                            protect_flag = True
+                            # print('4 ' + kanji)
+
+                        ok = False  # 書いてよい。この漢字は幾つ目？
+                        if protect_flag == False:  # 問題ないから、ルビをフル
+                            # print(kanji)
+                            # print(do)
+
+                            if do != []:
+                                if processed_num[kanji] == -1:
+                                    through = True
+                                    continue
+
+                                # print(kanji)
+                                # print(do)
+                                splitted = newline.split(kanji)
+                                kanji_num = len(splitted) - 1  # この行にある該当漢字の個数
+
+                                cnt = processed_num[kanji]
+
+                                i = 1
+                                while i <= kanji_num:
+                                    cnt = cnt + 1
+                                    if cnt in do:
+                                        ok = True
+                                    i += 1
+
+                                # print('{} {} {}'.format(repeat_num, cnt,do))
+                                if cnt > max(do):
+                                    processed_num[kanji] = -1
+                                    through = True
+                                    # print('over >>> {} {} {}'.format(repeat_num, cnt, do))
+                                else:
+                                    processed_num[kanji] = processed_num[kanji] + kanji_num
+
+                            else:
+                                ok = True
+
+                        if ok == True and through == False:
+                            # print(kanji)
+                            kana = kanji_dict[kanji]
+                            newline = re.sub(kanji,
+                                             '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
+                                             newline)
+                        else:
+                            pass
+
+                        if escape_flag == True:
+                            newline = re.sub('<toy>', '', newline)
+                            newline = re.sub('</toy>', '', newline)
+
+            fout.write(newline)
+
+        fout.close()
+        shutil.copyfile(tmpFile, out_file)
 
     def get_dict(self, fileNumber):
         # global file_name,kanji_dict,my_options
@@ -120,151 +234,31 @@ class PutRuby():
         # my_options = options
         return (ruby_dict[0], ruby_dict[1], options)
 
-    def source_base(self, fileNumber):
-        through = False
-
-        filename, kanji_dict, options = self.get_dict(fileNumber)
-        processed_num = self.make_proccess_cnt_disc(options)
-
-        inFile = indir + filename
-        outFile = outdir + filename
-
-        if kanji_dict == {}:  # ルビデータがなければ、そのままコピー
-            shutil.copyfile(inFile, outFile)
-            return (0)
-
-        with open(inFile, 'rt', encoding='utf-8') as f:
-            originLines = f.readlines()
-        fout = open(tmpFile, 'wt', encoding='utf-8')
-
-        start_flg = False  # <body>　データまでは無条件で書き出す
-        for inLine in originLines:  # オリジナルデータを一行づつ処理
-            newline = inLine
-            if start_flg == False:
-                if re.search('<body>', newline) or NAK == True:
-                    start_flg = True
-            else:
-                for kanji in kanji_dict:
-                    '''
-                    入力行に対して、辞書をしらべて、該当する単語があれば、ルビをフル
-                    '''
-
-                    through = False
-                    # option = False            #   オプション処理があるか
-                    escape_flag = False  # 処理した
-                    do, dont = self.get_do_dont(options, kanji)
-
-                    if re.search(kanji, newline):
-                        # if kanji == '様子':
-                        #     print(kanji)
-                        # if dont != {}:
-                        #     # print(option_keys)
-                        if dont != {}:  # この漢字にはoption処理がある
-                            '''
-                            この行に、例外文字列があれば、一時タグ<toy>で囲っておく
-                            '''
-                            for notstr in dont:  # don't処理; 当該もじを<toy>タグで囲む
-                                escape_flag = True  # この行はオプション処理をする
-                                newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
-                                '''
-                                この行に例外処理文字列がなければ、なにもしない。
-                                '''
-
-                        protect_flag = False
-                        if re.search('<toy>.*' + kanji + '</toy>', newline):
-                            protect_flag = True
-                            # print('1 ' + kanji)
-                        if re.search('<toy>' + kanji + '.*</toy>', newline):
-                            protect_flag = True
-                            # print('2 ' + kanji)
-                        if re.search('<rb>.*' + kanji + '</rb>', newline):
-                            protect_flag = True
-                            # print('3 ' + kanji)
-                        if re.search('<rb>' + kanji + '.*</r>', newline):
-                            protect_flag = True
-                            # print('4 ' + kanji)
-
-                        ok = False  # 書いてよい。この漢字は幾つ目？
-                        if protect_flag == False:  # 問題ないから、ルビをフル
-                            # print(kanji)
-                            # print(do)
-
-                            if do != []:
-                                if processed_num[kanji] == -1:
-                                    through = True
-                                    continue
-
-                                # print(kanji)
-                                # print(do)
-                                splitted = newline.split(kanji)
-                                kanji_num = len(splitted) - 1  # この行にある該当漢字の個数
-
-                                cnt = processed_num[kanji]
-
-                                i = 1
-                                while i <= kanji_num:
-                                    cnt = cnt + 1
-                                    if cnt in do:
-                                        ok = True
-                                    i = i + 1
-
-                                # print('{} {} {}'.format(repeat_num, cnt,do))
-                                if cnt > max(do):
-                                    processed_num[kanji] = -1
-                                    through = True
-                                    # print('over >>> {} {} {}'.format(repeat_num, cnt, do))
-                                else:
-                                    processed_num[kanji] = processed_num[kanji] + kanji_num
-
-                            else:
-                                ok = True
-
-                        if ok == True and through == False:
-                            # print(kanji)
-                            kana = kanji_dict[kanji]
-                            newline = re.sub(kanji,
-                                             '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
-                                             newline)
-                        else:
-                            pass
-
-                        if escape_flag == True:
-                            newline = re.sub('<toy>', '', newline)
-                            newline = re.sub('</toy>', '', newline)
-
-            fout.write(newline)
-
-        fout.close()
-        shutil.copyfile(tmpFile, outFile)
-
-    def make_proccess_cnt_disc(self, option):
+    def clear_proccess_cnt_disc(self, options):
         '''
         do データ作成
-        :param option:
+        :param options:
         :return:
         '''
-        global OPTION
+        global OPTION_FLAG
 
-        if option == {}:
-            OPTION = False
+        if options == {}:
+            OPTION_FLAG = False
             return ({})
         else:
-            OPTION = True
+            # for kanji in option:
+            #     # processed_disc.update({kanji: 0})
+            #     processed_disc[kanji] = 0
+            OPTION_FLAG = True
+            processed_disc = {kanji: 0 for kanji in options}
+            return (processed_disc)
 
-        processed_disc = {}
-        for kanji in option:
-            # processed_disc.update({kanji: 0})
-            processed_disc[kanji] = 0
-
-        return (processed_disc)
-
-    def get_do_dont(self, my_options, kanji):
-
-        do = []
-        dont = []
-        if kanji in my_options:
-            do, dont = my_options[kanji]
-
+    def get_do_dont(self, options, kanji):
+        if kanji in options:
+            do, dont = options[kanji]
+        else:
+            do = []
+            dont = []
         # print('kanji do {} {}'.format(kanji,do))
         # print('kanji dont {} {}'.format(kanji,dont))
         return (do, dont)

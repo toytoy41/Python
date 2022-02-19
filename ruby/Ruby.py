@@ -3,12 +3,12 @@ import re
 import shutil
 from data import option_dict
 
-fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
-           6:'K122.txt', 7:'K123.txt', 8:'K21.txt', 9:'K211.txt', 10:'K212.txt',
-           11:'K22.txt', 12:'K23.txt', 13:'K30.txt', 14:'K31.txt', 15:'K32.txt',
-           16:'K41.txt', 17:'K42.txt', 18:'K43.txt', 19:'K44.txt', 20:'K51.txt',
-           21:'K52.txt', 22:'K61.txt', 23:'K62.txt', 24:'K71.txt', 25:'K72.txt',
-           26:'KOrikomi.txt', 27:'KFront.txt', 30:'nav.html'}
+fileDic = {1: 'K0.txt', 2: 'K10.txt', 3: 'K11.txt', 4: 'K12.txt', 5: 'K121.txt',
+           6: 'K122.txt', 7: 'K123.txt', 8: 'K21.txt', 9: 'K211.txt', 10: 'K212.txt',
+           11: 'K22.txt', 12: 'K23.txt', 13: 'K30.txt', 14: 'K31.txt', 15: 'K32.txt',
+           16: 'K41.txt', 17: 'K42.txt', 18: 'K43.txt', 19: 'K44.txt', 20: 'K51.txt',
+           21: 'K52.txt', 22: 'K61.txt', 23: 'K62.txt', 24: 'K71.txt', 25: 'K72.txt',
+           26: 'KOrikomi.txt', 27: 'KFront.txt', 30: 'nav.html'}
 # fileDic = {1:'K0.txt', 2:'K10.txt', 3:'K11.txt', 4:'K12.txt', 5:'K121.txt',
 #            6:'K122.txt', 7:'K123.txt', 8:'K21.txt', 9:'K211.txt', 10:'K212.txt',
 #            11:'K22.txt', 12:'K23.txt', 14:'K31.txt', 15:'K32.txt',
@@ -22,11 +22,12 @@ originLines = ''
 inFile = ''
 outFile = ''
 tmpFile = 'tmp.html'
-file_data ={}
+file_data = {}
 file_do = []
 file_dont = []
 data_dir = './data/'
 file_name = ''
+
 
 class PutRuby():
     global file_name
@@ -48,7 +49,7 @@ class PutRuby():
         for num in nums:
             self.source_base(num)
 
-    def get_dict(self,fileNumber):
+    def get_dict(self, fileNumber):
         # global file_name,kanji_dict,my_options
         #
         global NAK
@@ -56,71 +57,71 @@ class PutRuby():
 
         if fileNumber == 1:
             from WK10 import ruby_dict, options
-        elif fileNumber ==2:
+        elif fileNumber == 2:
             from WK10 import ruby_dict, options
-        elif fileNumber ==3:
+        elif fileNumber == 3:
             from WK11 import ruby_dict, options
-        elif fileNumber ==4:
+        elif fileNumber == 4:
             from WK12 import ruby_dict, options
-        elif fileNumber ==5:
+        elif fileNumber == 5:
             from WK121 import ruby_dict, options
-        elif fileNumber ==6:
+        elif fileNumber == 6:
             from WK122 import ruby_dict, options
-        elif fileNumber ==7:
+        elif fileNumber == 7:
             from WK123 import ruby_dict, options
-        elif fileNumber ==8:
+        elif fileNumber == 8:
             from WK21 import ruby_dict, options
-        elif fileNumber ==9:
+        elif fileNumber == 9:
             from WK211 import ruby_dict, options
-        elif fileNumber ==10:
+        elif fileNumber == 10:
             from WK212 import ruby_dict, options
-        elif fileNumber ==11:
+        elif fileNumber == 11:
             from WK22 import ruby_dict, options
-        elif fileNumber ==12:
+        elif fileNumber == 12:
             from WK23 import ruby_dict, options
-        elif fileNumber ==13:
+        elif fileNumber == 13:
             from WK30 import ruby_dict, options
-        elif fileNumber ==14:
+        elif fileNumber == 14:
             from WK31 import ruby_dict, options
-        elif fileNumber ==15:
+        elif fileNumber == 15:
             from WK32 import ruby_dict, options
-        elif fileNumber ==16:
+        elif fileNumber == 16:
             from WK41 import ruby_dict, options
-        elif fileNumber ==17:
+        elif fileNumber == 17:
             from WK42 import ruby_dict, options
-        elif fileNumber ==18:
+        elif fileNumber == 18:
             from WK43 import ruby_dict, options
-        elif fileNumber ==19:
+        elif fileNumber == 19:
             from WK44 import ruby_dict, options
-        elif fileNumber ==20:
+        elif fileNumber == 20:
             from WK51 import ruby_dict, options
-        elif fileNumber ==21:
+        elif fileNumber == 21:
             from WK52 import ruby_dict, options
-        elif fileNumber ==22:
+        elif fileNumber == 22:
             from WK61 import ruby_dict, options
-        elif fileNumber ==23:
+        elif fileNumber == 23:
             from WK62 import ruby_dict, options
-        elif fileNumber ==24:
+        elif fileNumber == 24:
             from WK71 import ruby_dict, options
-        elif fileNumber ==25:
+        elif fileNumber == 25:
             from WK72 import ruby_dict, options
-        elif fileNumber ==26:
+        elif fileNumber == 26:
             from WKOrikomi import ruby_dict, options
-        elif fileNumber ==27:
+        elif fileNumber == 27:
             from WKFront import ruby_dict, options
-        elif fileNumber ==28:
+        elif fileNumber == 28:
             from WKFront import ruby_dict, options
-        elif fileNumber ==30:
+        elif fileNumber == 30:
             from WKnav import ruby_dict, options
             NAK = True
 
         # file_name = ruby_dict[0]
         # kanji_dict = ruby_dict[1]
         # my_options = options
-        return(ruby_dict[0], ruby_dict[1], options)
+        return (ruby_dict[0], ruby_dict[1], options)
 
     def source_base(self, fileNumber):
-        through= False
+        through = False
 
         filename, kanji_dict, options = self.get_dict(fileNumber)
         processed_num = self.make_proccess_cnt_disc(options)
@@ -128,16 +129,16 @@ class PutRuby():
         inFile = indir + filename
         outFile = outdir + filename
 
-        if kanji_dict == {}:            #   ルビデータがなければ、そのままコピー
+        if kanji_dict == {}:  # ルビデータがなければ、そのままコピー
             shutil.copyfile(inFile, outFile)
-            return(0)
+            return (0)
 
         with open(inFile, 'rt', encoding='utf-8') as f:
             originLines = f.readlines()
         fout = open(tmpFile, 'wt', encoding='utf-8')
 
-        start_flg = False               #   <body>　データまでは無条件で書き出す
-        for inLine in originLines:      #   オリジナルデータを一行づつ処理
+        start_flg = False  # <body>　データまでは無条件で書き出す
+        for inLine in originLines:  # オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
                 if re.search('<body>', newline) or NAK == True:
@@ -150,7 +151,7 @@ class PutRuby():
 
                     through = False
                     # option = False            #   オプション処理があるか
-                    escape_flag = False         #   処理した
+                    escape_flag = False  # 処理した
                     do, dont = self.get_do_dont(options, kanji)
 
                     if re.search(kanji, newline):
@@ -158,12 +159,12 @@ class PutRuby():
                         #     print(kanji)
                         # if dont != {}:
                         #     # print(option_keys)
-                        if dont != {}:  #　この漢字にはoption処理がある
+                        if dont != {}:  # この漢字にはoption処理がある
                             '''
                             この行に、例外文字列があれば、一時タグ<toy>で囲っておく
                             '''
-                            for notstr in dont: #　don't処理; 当該もじを<toy>タグで囲む
-                                escape_flag = True      #　この行はオプション処理をする
+                            for notstr in dont:  # don't処理; 当該もじを<toy>タグで囲む
+                                escape_flag = True  # この行はオプション処理をする
                                 newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
                                 '''
                                 この行に例外処理文字列がなければ、なにもしない。
@@ -183,8 +184,8 @@ class PutRuby():
                             protect_flag = True
                             # print('4 ' + kanji)
 
-                        ok = False      #   書いてよい。この漢字は幾つ目？
-                        if protect_flag == False:   #　問題ないから、ルビをフル
+                        ok = False  # 書いてよい。この漢字は幾つ目？
+                        if protect_flag == False:  # 問題ないから、ルビをフル
                             # print(kanji)
                             # print(do)
 
@@ -199,9 +200,6 @@ class PutRuby():
                                 kanji_num = len(splitted) - 1  # この行にある該当漢字の個数
 
                                 cnt = processed_num[kanji]
-                                if kanji == '様子':
-                                    # print(cnt)
-                                    print('{} cnt : {} do : {}'.format(kanji_num, cnt,do))
 
                                 i = 1
                                 while i <= kanji_num:
@@ -226,12 +224,12 @@ class PutRuby():
                             kana = kanji_dict[kanji]
                             newline = re.sub(kanji,
                                              '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>',
-                                         newline)
+                                             newline)
                         else:
                             pass
 
                         if escape_flag == True:
-                            newline = re.sub('<toy>', '',  newline)
+                            newline = re.sub('<toy>', '', newline)
                             newline = re.sub('</toy>', '', newline)
 
             fout.write(newline)
@@ -260,7 +258,7 @@ class PutRuby():
 
         return (processed_disc)
 
-    def get_do_dont(self,my_options, kanji):
+    def get_do_dont(self, my_options, kanji):
 
         do = []
         dont = []
@@ -269,7 +267,7 @@ class PutRuby():
 
         # print('kanji do {} {}'.format(kanji,do))
         # print('kanji dont {} {}'.format(kanji,dont))
-        return(do, dont)
+        return (do, dont)
 
     # def get_max(self, nums):
     #     max = 0
@@ -343,6 +341,7 @@ class PutRuby():
     #     else:
     #         return {}
 
+
 def go():
     ruby = PutRuby()
 
@@ -352,8 +351,8 @@ def go():
     # fnums = [30]
     ruby.morethan_one(fnums)
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     go()
 
     sys.exit()

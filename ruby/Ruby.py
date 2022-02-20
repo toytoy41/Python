@@ -71,24 +71,25 @@ class PutRuby():
                     '''
                     入力行に対して、辞書をしらべて、該当する単語があれば、ルビをフル
                     '''
-
-                    # option = False            #   オプション処理があるか
-                    # escape_flag = False  # 処理した
-                    do, dont = self.get_do_dont(options, kanji)
-
                     if re.search(kanji, newline):
+
+                        # option = False            #   オプション処理があるか
+                        escape_flag = False  # 処理した
+                        do, dont = self.get_do_dont(options, kanji)
+
                         # if kanji == '物':
                         #     print(newline)
                         #     print(do)
 
                         through = False
                         finished = False
+
                         if dont != []:  # この漢字にはoption処理がある
                             '''
                             この行に、例外文字列があれば、一時タグ<toy>で囲っておく
                             '''
                             for notstr in dont:  # don't処理; 当該もじを<toy>タグで囲む
-                                # escape_flag = True  # この行はオプション処理をする
+                                escape_flag = True  # この行はオプション処理をする
                                 newline = re.sub(notstr, '<toy>' + notstr + '</toy>', newline)
                                 '''
                                 この行に例外処理文字列がなければ、なにもしない。
@@ -161,9 +162,9 @@ class PutRuby():
                         else:
                             pass
 
-                    # if escape_flag == True:
-                    newline = re.sub('<toy>', '', newline)
-                    newline = re.sub('</toy>', '', newline)
+                        if escape_flag == True:
+                            newline = re.sub('<toy>', '', newline)
+                            newline = re.sub('</toy>', '', newline)
 
             fout.write(newline)
 
@@ -204,8 +205,6 @@ class PutRuby():
         # global file_name,kanji_dict,my_options
         #
         # global options
-
-        NAK = False
 
         if fileNumber == 1:
             from WK10 import ruby_dict, options
@@ -310,34 +309,13 @@ class PutRuby():
         # return (do, dont)
 
 
-    # def multi_kanji_replace(self,kanji, newline, do, processed_num):
-    #     global kanji_dict
-    #
-    #     splitted = newline.split(kanji)
-    #     kanji_num = len(splitted) - 1  # この行にある該当漢字の個数
-    #
-    #     kana = kanji_dict[kanji]
-    #     base_pos  = processed_num[kanji] + 1
-    #     if base_pos > max(do):
-    #         processed_num[kanji] = -1
-    #         return (newline)
-    #     else:
-    #         i = 1
-    #         while i <= kanji_num:
-    #             if base_pos in do:
-    #                 splitted[i-1] = splitted[i-1] + '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>'
-    #                 ok = True
-    #             i += 1
-    #         else:
-    #             newline=''.join(splitted)
-
 def go():
 
     ruby = PutRuby()
 
     # fnums = [1,2, 3,4,5,6,7,8,9,10,11,12,13,14,15]
-    fnums = [16,17, 18,19,20,21,22,23,24,25]
-    # fnums = [5]
+    # fnums = [16,17, 18,19,20,21,22,23,24,25]
+    fnums = [5]
     # fnums = [30]
     ruby.morethan_one(fnums)
 

@@ -51,7 +51,7 @@ class PutRuby():
 
         through = False     #   True でルビ付けをしない
         start_flg = False  # <body>　データまでは無条件で書き出す
-
+        ato_shori = ''      #['through','insert','shorisumi']
         for inLine in originLines:  # オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
@@ -67,6 +67,9 @@ class PutRuby():
                         options_flag, do, dont = self.get_do_dont(options, kanji)
 
                         if options_flag == True:
+                            ato_shori = 'zenbu_ruby_tuke'
+                        else:
+                            ato_shori = ''
 
                             through = False
                             # do_done_flag = False  # 処理した
@@ -84,7 +87,7 @@ class PutRuby():
                                     '''
                                     この行に例外処理文字列がなければ、なにもしない。
                                     '''
-
+                                ato_shori = 'ダミータグ後処理'
                             if do != []:
 
                                 do_done_flag  = True
@@ -133,6 +136,7 @@ class PutRuby():
                                                     kana = kanji_dict[kanji]
                                                     splitted[i - 1] = splitted[
                                                                           i - 1] + '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>'
+                                                    ato_shori = 'ダミータグ後処理'
                                                     do_done_flag = True
                                                 else:
                                                     splitted[i - 1] += kanji
@@ -321,7 +325,7 @@ def go():
 
     # fnums = [1,2, 3,4,5,6,7,8,9,10,11,12,13,14,15]
     # fnums = [16,17, 18,19,20,21,22,23,24,25]
-    fnums = [9]
+    fnums = [11]
     # fnums = [30]
     ruby.morethan_one(fnums)
 

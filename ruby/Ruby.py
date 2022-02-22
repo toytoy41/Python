@@ -51,7 +51,7 @@ class PutRuby():
 
         through = False     #   True でルビ付けをしない
         start_flg = False  # <body>　データまでは無条件で書き出す
-        ato_shori = ''      #['through','insert','shorisumi']
+        ato_shori = ''      #   ['dont_anything','insert_ruby','I_did']
         for inLine in originLines:  # オリジナルデータを一行づつ処理
             newline = inLine
             if start_flg == False:
@@ -66,16 +66,9 @@ class PutRuby():
 
                         options_flag, do, dont = self.get_do_dont(options, kanji)
 
-                        if options_flag == True:
-                            ato_shori = 'zenbu_ruby_tuke'
-                        else:
-                            ato_shori = ''
+                        if options_flag == True:   # option がない。全部ルビ付け
 
-                            through = False
-                            # do_done_flag = False  # 処理した
-                            dont_done_flag = False
-
-                            if kanji == '選':
+                            if kanji == 'xx':
                                 print(f'kanji {kanji} do {do} newline {newline}')
 
                             if dont != []:  # この漢字にはoption処理がある
@@ -87,23 +80,23 @@ class PutRuby():
                                     '''
                                     この行に例外処理文字列がなければ、なにもしない。
                                     '''
-                                ato_shori = 'ダミータグ後処理'
-                            if do != []:
-
-                                do_done_flag  = True
+                            if do == []:    #　この行で該当する漢字にすべてルビをふる
+                                i_did = False
+                            else:
+                                '''
+                                do == True で
+                                該当する漢字があれば、変換する
+                                なければ、なにもしない
+                                '''
+                                i_did = False
                                 if processed_num[kanji] != -1:      # 何もしない ルビをうたない
                                     splitted = newline.split(kanji)
                                     kanji_num = len(splitted) - 1  # この行にある該当漢字の個数
-
-                                    base_pos = processed_num[kanji]
 
                                     i = 1
                                     while i <= kanji_num:
 
                                         processed_num[kanji] += 1
-                                        if kanji == '選':
-                                            self.my_print(kanji, processed_num, splitted, newline)
-
                                         if processed_num[kanji] > max(do):  # この漢字ではその後のルビを付けない
                                             # print('{} {} {}'.format(kanji, i,kanji_num))
                                             while i <= kanji_num:   #　この行は残りを修繕しておく
@@ -114,10 +107,6 @@ class PutRuby():
                                             break
                                         else:
                                             pos = processed_num[kanji]
-                                            if kanji == '選':
-                                                print(f'pos {pos}')
-                                                print(do)
-                                                self.my_print(kanji, processed_num, splitted, newline)
 
                                             if pos in do:
                                                 para = splitted[i - 1] + kanji + splitted[i]
@@ -129,15 +118,15 @@ class PutRuby():
                                                 protect_flag = self.check_protected(kanji, para)
 
                                                 if protect_flag == False:
-                                                    # if kanji == '道':
-                                                    #     print(f'pos {pos}')
-                                                    #     self.my_print(kanji, processed_num, splitted, newline)
 
                                                     kana = kanji_dict[kanji]
                                                     splitted[i - 1] = splitted[
                                                                           i - 1] + '<ruby> <rb>' + kanji + '</rb> <rp>（</rp> <rt>' + kana + '</rt> <rp>）</rp> </ruby>'
-                                                    ato_shori = 'ダミータグ後処理'
-                                                    do_done_flag = True
+                                                    if kanji == 'ああああ':
+                                                        print(f'pos {pos}')
+                                                        print(splitted)
+                                                        # self.my_print(kanji, processed_num, splitted, newline)
+                                                    i_did = True
                                                 else:
                                                     splitted[i - 1] += kanji
                                             else:
@@ -145,24 +134,23 @@ class PutRuby():
 
                                             i += 1
 
-                                    if do_done_flag == True:
+                                    if i_did == True:
                                         newline = ''.join(splitted)
 
-                                else:   #  processed_num[kanji] == -1
-                                    pass
+                                else:   #  ルビをつけない
+                                    '''
+                                     processed_num[kanji] == -1 => ルビをつけない
+                                     なにもしない。
+                                    '''
 
-                            else:
-                                do_done_flag = False
+                        if options_flag == False or do == []:
+                            #　option がない。doがない。　===>　全部、ルビをつける。
+                            newline = self.insert_ruby(kanji, newline)
 
-                            if do_done_flag == False:
-                                newline = self.insert_ruby(kanji, newline)
-
+                        if dont != []:
                             if re.search('<toy>', newline):
                                 newline = re.sub('<toy>', '', newline)
                                 newline = re.sub('</toy>', '', newline)
-
-                        else:       #   optionがなければ、全部ルビを付ける
-                            newline = self.insert_ruby(kanji, newline)
 
             fout.write(newline)
 
@@ -325,8 +313,11 @@ def go():
 
     # fnums = [1,2, 3,4,5,6,7,8,9,10,11,12,13,14,15]
     # fnums = [16,17, 18,19,20,21,22,23,24,25]
-    fnums = [11]
-    # fnums = [30]
+    # fnums = [11]    # 21日まで
+    # fnums = [1,2, 3,4,5,6,7,8,9,10,11]
+    # fnums = [30]　
+    fnums = [25]
+
     ruby.morethan_one(fnums)
 
 
